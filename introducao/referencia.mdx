@@ -1,13 +1,47 @@
 ---
-title: Introdução
-description: Visão geral da API do FormSign e como navegar na documentação.
+title: Comece por aqui
+description: Visão geral do FormSign e do fluxo básico de envio e acompanhamento de documentos para assinatura.
+icon: rocket
 ---
 
-Bem-vindo à documentação da API do FormSign. Este guia está organizado por temas para facilitar a navegação:
+O FormSign é uma plataforma de assinatura eletrônica focada em simplicidade e flexibilidade. Você pode enviar documentos para assinatura com campos totalmente personalizáveis (texto, data, assinatura, checkbox e outros), definir a ordem de signatários, configurar lembretes automáticos e acompanhar o status em tempo real.
 
-- Introdução: visão geral e orientações.
-- Autenticação: como obter e usar tokens.
-- Envelopes: envio, reenvio, histórico e cancelamento.
-- Templates: criação, listagem, consulta e atualização.
+### Como funciona em 2 passos
 
-Use o menu lateral para entrar em cada seção.
+1) Enviar o envelope para assinatura
+- Use o endpoint `POST /api/envelopes/send` para criar e disparar um envelope. 
+- Informe os campos do documento, os destinatários e as opções avançadas (lembretes, expiração, etc.).
+
+2) Acompanhar o status do envelope
+- Consulte o endpoint `GET /api/envelopes/{envelopeId}` para saber se o envelope está pendente, enviado, concluído ou anulado, além de metadados úteis como datas, destinatários e links relevantes.
+
+### Exemplo de uso
+
+```bash
+# 1) Enviar envelope (documento PDF já no S3)
+curl -X POST "https://api.formsign.com.br/api/envelopes/send" \
+  -H "Authorization: Bearer <SEU_TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "subject": "Assine o contrato",
+    "message": "Olá, por favor assine o documento.",
+    "submissionType": "document",
+    "documentSettings": { "documentName": "contrato.pdf", "fileHash": "<hash-do-arquivo>" },
+    "s3Key": "uploads/envelopes/contrato.pdf",
+    "fields": [
+      { "type": "signature", "identifier": "assinatura", "required": true, "x": 70, "y": 90, "w": 20, "h": 8, "pageNumber": 1 }
+    ],
+    "recipients": [
+      { "email": "cliente@exemplo.com", "name": "Cliente", "signatureType": "draw", "role": "signer" }
+    ]
+  }'
+
+# 2) Consultar status do envelope
+curl -X GET "https://api.formsign.com.br/api/envelopes/<ENVELOPE_ID>" \
+  -H "Authorization: Bearer <SEU_TOKEN>"
+```
+
+- Detalhes do envio: veja `Envelopes → Enviar Envelope`.
+- Detalhes de consulta: veja `Envelopes → Obter Envelope`.
+
+Para autenticar, gere um token via `POST /api/token` (Basic) e utilize-o como Bearer nas chamadas autenticadas. Consulte `Autenticação` para mais detalhes.

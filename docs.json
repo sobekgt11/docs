@@ -8,6 +8,15 @@
     "dark": "#0284c7"
   },
   "favicon": "/favicon.svg",
+  "api": {
+    "baseUrl": "https://api.formsign.com.br",
+    "auth": {
+      "method": "bearer",
+      "name": "Authorization",
+      "inputPrefix": "Bearer "
+    },
+    "playground": { "mode": "show" }
+  },
   "navigation": {
     "tabs": [
       {
