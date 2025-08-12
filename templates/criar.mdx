@@ -1,0 +1,30 @@
+---
+title: Criar Template
+description: POST /api/templates cria um novo template.
+---
+
+Endpoint: `POST /api/templates`
+
+Headers: `Authorization: Bearer <token>`, `Content-Type: application/json`
+
+Body (form):
+```json
+{
+  "templateName": "Contrato de Serviços",
+  "templateDescription": "Template para contratos",
+  "submissionType": "form",
+  "formSettings": { "numberOfColumns": 2, "view": "standard" },
+  "fields": [ { "type": "text", "identifier": "nome", "required": true, "x": 10, "y": 10, "w": 40, "h": 8 } ]
+}
+```
+
+Body (document):
+```json
+{
+  "templateName": "Contrato PDF",
+  "submissionType": "document",
+  "documentSettings": { "documentName": "contrato.pdf", "fileHash": "<hash>" },
+  "s3Key": "uploads/templates/contrato.pdf",
+  "fields": [ { "type": "signature", "identifier": "assinatura", "required": true, "x": 70, "y": 90, "w": 20, "h": 8, "pageNumber": 1 } ]
+}
+```

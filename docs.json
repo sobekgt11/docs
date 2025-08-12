@@ -13,10 +13,25 @@
       {
         "tab": "Docs",
         "groups": [
-          { "group": "Introdução", "pages": ["intro", "publish"] },
-          { "group": "Autenticação", "pages": ["auth"] },
-          { "group": "API Reference", "pages": ["reference/token", "reference/templates", "reference/envelopes"] },
-          { "group": "Exemplos", "pages": ["examples"] }
+          { "group": "Introdução", "pages": ["introducao/referencia"] },
+          { "group": "Autenticação", "pages": ["autenticacao/referencia", "autenticacao/token"] },
+          { "group": "Envelopes", "pages": [
+            "envelopes/referencia",
+            "envelopes/listar",
+            "envelopes/detalhes",
+            "envelopes/historico",
+            "envelopes/enviar",
+            "envelopes/reenviar",
+            "envelopes/anular"
+          ] },
+          { "group": "Templates", "pages": [
+            "templates/referencia",
+            "templates/criar",
+            "templates/draft",
+            "templates/listar",
+            "templates/obter",
+            "templates/atualizar"
+          ] }
         ]
       }
     ]

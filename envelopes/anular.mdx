@@ -1,0 +1,16 @@
+---
+title: Anular Envelope
+description: POST /api/envelopes/void cancela um envelope.
+---
+
+Endpoint: `POST /api/envelopes/void`
+
+Body:
+```json
+{ "envelopeId": "abcd-1234", "justificativa": "Cancelamento solicitado" }
+```
+
+Respostas:
+- 200 OK — `{ "message": "Envelope cancelado com sucesso", "envelopeId": "abcd-1234" }`
+- 400 — envelope já cancelado/completo ou payload inválido
+- 404 — envelope não encontrado

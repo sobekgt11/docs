@@ -1,0 +1,20 @@
+---
+title: Atualizar Template
+description: PUT /api/templates/{templateId} atualiza campos do template com `UpdateTemplateData`.
+---
+
+Endpoint: `PUT /api/templates/{templateId}`
+
+Headers: `Authorization: Bearer <token>`, `Content-Type: application/json`
+
+Body (exemplo):
+```json
+{
+  "templateId": "abcd-1234",
+  "templateName": "Contrato v2",
+  "templateDescription": "Atualização",
+  "submissionType": "form",
+  "fields": [ { "type": "text", "identifier": "nome", "required": true, "x": 10, "y": 10, "w": 40, "h": 8 } ],
+  "advancedOptions": { "autoReminders": true, "reminderDelay": 2, "reminderFrequency": 3, "expirationDays": 30, "expirationWarning": 5 }
+}
+```

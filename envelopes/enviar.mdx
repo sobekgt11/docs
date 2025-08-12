@@ -1,0 +1,26 @@
+---
+title: Enviar Envelope
+description: POST /api/envelopes/send cria e envia um envelope.
+---
+
+Endpoint: `POST /api/envelopes/send`
+
+Headers: `Authorization: Bearer <token>`, `Content-Type: application/json`
+
+Body mínimo:
+```json
+{
+  "subject": "Assine o contrato",
+  "message": "Por favor, assine",
+  "submissionType": "document",
+  "documentSettings": { "documentName": "contrato.pdf", "fileHash": "<hash>" },
+  "s3Key": "uploads/envelopes/contrato.pdf",
+  "fields": [{ "type": "signature", "identifier": "assinatura", "required": true, "x": 70, "y": 90, "w": 20, "h": 8, "pageNumber": 1 }],
+  "recipients": [{ "email": "dest@example.com", "name": "Destinatário", "signatureType": "draw", "role": "signer" }]
+}
+```
+
+Resposta 200 OK:
+```json
+{ "message": "Success", "envelopeId": "..." }
+```

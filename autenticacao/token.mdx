@@ -1,0 +1,26 @@
+---
+title: /api/token
+description: Obtenha um token Bearer a partir de credenciais Basic (clientId:clientSecret).
+---
+
+### Requisição
+- Método: `POST`
+- URL: `/api/token`
+- Headers: `Authorization: Basic <base64(clientId:clientSecret)>`
+
+```bash
+curl -X POST \
+  -H "Authorization: Basic $(echo -n 'CLIENT_ID:CLIENT_SECRET' | base64)" \
+  https://SEU_HOST/api/token
+```
+
+### Resposta
+```json
+{
+  "access_token": "<JWT>",
+  "token_type": "Bearer",
+  "expires_in": 3600
+}
+```
+
+Erros: 401 (credenciais inválidas), 405 (método incorreto).

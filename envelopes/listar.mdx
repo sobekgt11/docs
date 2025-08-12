@@ -1,0 +1,16 @@
+---
+title: Listar Envelopes
+description: GET /api/envelopes com paginação e filtros.
+---
+
+Endpoint: `GET /api/envelopes`
+
+Query params:
+- `pageSize` (int, padrão 10, máx 100)
+- `page` (int, padrão 1)
+- `searchText` (string, opcional)
+- `lastUpdateStartDate` (string, opcional)
+- `lastUpdateEndDate` (string, opcional)
+- `status` (string, opcional)
+
+Auth: `Authorization: Bearer <token>`

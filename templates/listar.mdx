@@ -1,0 +1,14 @@
+---
+title: Listar Templates
+description: GET /api/templates com paginação e filtros.
+---
+
+Endpoint: `GET /api/templates`
+
+Query params:
+- `pageSize` (int, padrão 10, máx 100)
+- `page` (int, padrão 1)
+- `searchText` (string, opcional)
+- `lastUpdateStartDate`, `lastUpdateEndDate` (string, opcional)
+
+Auth: `Authorization: Bearer <token>`

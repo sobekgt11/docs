@@ -1,0 +1,15 @@
+---
+title: Autenticação — Referência
+description: Descreve os métodos de autenticação disponíveis e como usá-los.
+---
+
+Nesta seção você encontrará:
+
+- JWT Bearer para rotas autenticadas (Envelopes e Templates)
+- Obtenção de token via Basic em `/api/token`
+
+Fluxos:
+- Envie `Authorization: Bearer <token>` para consumir as rotas protegidas.
+- Obtenha o token com `POST /api/token` usando `Authorization: Basic <base64(clientId:clientSecret)>`.
+
+Consulte também: `autenticacao/token`.

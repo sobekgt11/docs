@@ -1,0 +1,16 @@
+---
+title: Reenviar Envelope
+description: POST /api/envelopes/resend reenviar notificações de assinatura.
+---
+
+Endpoint: `POST /api/envelopes/resend`
+
+Body:
+```json
+{ "envelopeId": "abcd-1234" }
+```
+
+Resposta 200 OK:
+```json
+{ "message": "Success", "envelopeId": "abcd-1234" }
+```
