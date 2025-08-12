@@ -46,8 +46,8 @@
     ]
   },
   "logo": {
-    "light": "/assets/logo-light.svg",
-    "dark": "/assets/logo-dark.svg",
+    "light": "/logo/logo.png",
+    "dark": "/logo/logo.png",
     "href": "https://formsign.com.br"
   },
   "navbar": {
