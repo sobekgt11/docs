@@ -1,27 +1,118 @@
 ---
 title: Enviar Envelope
-description: POST /api/envelopes/send cria e envia um envelope.
+description: Cria e envia um envelope para assinatura. Suporta campos personalizados e múltiplos destinatários.
 openapi: 'POST /api/envelopes/send'
 ---
 
-Endpoint: `POST /api/envelopes/send`
+Use este endpoint para iniciar um fluxo de assinatura. Para `submissionType = document`, o arquivo deve estar no S3 e o `s3Key` é obrigatório.
 
-Headers: `Authorization: Bearer <token>`, `Content-Type: application/json`
+<CodeGroup>
 
-Body mínimo:
-```json
-{
-  "subject": "Assine o contrato",
-  "message": "Por favor, assine",
-  "submissionType": "document",
-  "documentSettings": { "documentName": "contrato.pdf", "fileHash": "<hash>" },
-  "s3Key": "uploads/envelopes/contrato.pdf",
-  "fields": [{ "type": "signature", "identifier": "assinatura", "required": true, "x": 70, "y": 90, "w": 20, "h": 8, "pageNumber": 1 }],
-  "recipients": [{ "email": "dest@example.com", "name": "Destinatário", "signatureType": "draw", "role": "signer" }]
+```bash cURL
+curl -X POST "https://api.formsign.com.br/api/envelopes/send" \
+  -H "Authorization: Bearer <TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "subject": "Assine o contrato",
+    "message": "Olá, por favor assine.",
+    "submissionType": "document",
+    "documentSettings": { "documentName": "contrato.pdf", "fileHash": "<hash>" },
+    "s3Key": "uploads/envelopes/contrato.pdf",
+    "fields": [ { "type": "signature", "identifier": "assinatura", "required": true, "x": 70, "y": 90, "w": 20, "h": 8, "pageNumber": 1 } ],
+    "recipients": [ { "email": "cliente@exemplo.com", "name": "Cliente", "signatureType": "draw", "role": "signer" } ]
+  }'
+```
+
+```go Go
+package main
+import ("bytes"; "fmt"; "net/http")
+func main(){
+  body := []byte(`{"subject":"Assine o contrato","message":"Olá","submissionType":"document","documentSettings":{"documentName":"contrato.pdf","fileHash":"<hash>"},"s3Key":"uploads/envelopes/contrato.pdf","fields":[{"type":"signature","identifier":"assinatura","required":true,"x":70,"y":90,"w":20,"h":8,"pageNumber":1}],"recipients":[{"email":"cliente@exemplo.com","name":"Cliente","signatureType":"draw","role":"signer"}]}`)
+  req, _ := http.NewRequest("POST","https://api.formsign.com.br/api/envelopes/send", bytes.NewBuffer(body))
+  req.Header.Set("Authorization","Bearer <TOKEN>")
+  req.Header.Set("Content-Type","application/json")
+  res,_ := http.DefaultClient.Do(req)
+  fmt.Println(res.Status)
 }
 ```
 
-Resposta 200 OK:
-```json
-{ "message": "Success", "envelopeId": "..." }
+```javascript JavaScript
+await fetch('https://api.formsign.com.br/api/envelopes/send',{
+  method:'POST',
+  headers:{'Authorization':'Bearer <TOKEN>','Content-Type':'application/json'},
+  body: JSON.stringify({
+    subject:'Assine o contrato', message:'Olá', submissionType:'document',
+    documentSettings:{documentName:'contrato.pdf', fileHash:'<hash>'},
+    s3Key:'uploads/envelopes/contrato.pdf',
+    fields:[{type:'signature', identifier:'assinatura', required:true, x:70, y:90, w:20, h:8, pageNumber:1}],
+    recipients:[{email:'cliente@exemplo.com', name:'Cliente', signatureType:'draw', role:'signer'}]
+  })
+});
 ```
+
+```python Python
+import requests
+payload={
+  "subject":"Assine o contrato","message":"Olá","submissionType":"document",
+  "documentSettings":{"documentName":"contrato.pdf","fileHash":"<hash>"},
+  "s3Key":"uploads/envelopes/contrato.pdf",
+  "fields":[{"type":"signature","identifier":"assinatura","required":True,"x":70,"y":90,"w":20,"h":8,"pageNumber":1}],
+  "recipients":[{"email":"cliente@exemplo.com","name":"Cliente","signatureType":"draw","role":"signer"}]
+}
+r=requests.post('https://api.formsign.com.br/api/envelopes/send',json=payload,headers={'Authorization':'Bearer <TOKEN>'})
+print(r.json())
+```
+
+```java Java
+// Usando HttpClient (Java 11+)
+// Monte o JSON como string e envie com header Authorization: Bearer <TOKEN>
+```
+
+</CodeGroup>
+
+### Parâmetros
+
+<ParamField body="submissionType" type="string" required>
+"form" ou "document". Para "document" é obrigatório informar `s3Key` e `documentSettings`.
+</ParamField>
+<ParamField body="s3Key" type="string">
+Caminho do arquivo no S3 (obrigatório quando `submissionType=document`).
+</ParamField>
+<ParamField body="documentSettings.fileHash" type="string">
+Hash do arquivo para verificação de integridade.
+</ParamField>
+<ParamField body="fields" type="array" required>
+Campos do documento (ex.: assinatura, texto, data). Cada item segue `DadosFormulario`.
+</ParamField>
+<ParamField body="recipients" type="array" required>
+Lista de destinatários (email, name, signatureType, role).
+</ParamField>
+
+### Respostas
+
+<ResponseExample>
+```json 200
+{ "message": "Success", "envelopeId": "env_123" }
+```
+
+```json 400
+{ "error": "S3Key é obrigatório para enviar o email" }
+```
+
+```json 401
+{ "error": "Unauthorized" }
+```
+
+```json 500
+{ "error": "Falha ao enviar envelope" }
+```
+</ResponseExample>
+
+### Estrutura da resposta
+
+<ResponseField name="message" type="string" required>
+Mensagem de sucesso.
+</ResponseField>
+<ResponseField name="envelopeId" type="string" required>
+Identificador do envelope criado.
+</ResponseField>

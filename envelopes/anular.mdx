@@ -1,17 +1,56 @@
 ---
 title: Anular Envelope
-description: POST /api/envelopes/void cancela um envelope.
+description: Cancela um envelope, impedindo novas assinaturas.
 openapi: 'POST /api/envelopes/void'
 ---
 
-Endpoint: `POST /api/envelopes/void`
+<CodeGroup>
 
-Body:
-```json
-{ "envelopeId": "abcd-1234", "justificativa": "Cancelamento solicitado" }
+```bash cURL
+curl -X POST "https://api.formsign.com.br/api/envelopes/void" \
+  -H "Authorization: Bearer <TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{"envelopeId":"env_123","justificativa":"Solicitado pelo remetente"}'
 ```
 
-Respostas:
-- 200 OK — `{ "message": "Envelope cancelado com sucesso", "envelopeId": "abcd-1234" }`
-- 400 — envelope já cancelado/completo ou payload inválido
-- 404 — envelope não encontrado
+```javascript JavaScript
+await fetch('https://api.formsign.com.br/api/envelopes/void',{
+  method:'POST', headers:{'Authorization':'Bearer <TOKEN>','Content-Type':'application/json'},
+  body: JSON.stringify({ envelopeId:'env_123', justificativa:'Solicitado pelo remetente' })
+});
+```
+
+```python Python
+import requests
+r=requests.post('https://api.formsign.com.br/api/envelopes/void',json={'envelopeId':'env_123','justificativa':'Solicitado'},headers={'Authorization':'Bearer <TOKEN>'})
+print(r.json())
+```
+
+```go Go
+// POST JSON {envelopeId, justificativa} com Authorization: Bearer <TOKEN>
+```
+
+```java Java
+// POST JSON {envelopeId, justificativa} com Authorization: Bearer <TOKEN>
+```
+
+</CodeGroup>
+
+### Parâmetros (Body)
+<ParamField body="envelopeId" type="string" required>ID do envelope.</ParamField>
+<ParamField body="justificativa" type="string" required>Motivo do cancelamento.</ParamField>
+
+### Respostas
+<ResponseExample>
+```json 200
+{ "message": "Envelope cancelado com sucesso", "envelopeId": "env_123" }
+```
+
+```json 400
+{ "error": "envelope já está cancelado" }
+```
+
+```json 404
+{ "error": "envelope não encontrado" }
+```
+</ResponseExample>

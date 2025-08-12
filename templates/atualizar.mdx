@@ -1,21 +1,36 @@
 ---
 title: Atualizar Template
-description: PUT /api/templates/{templateId} atualiza campos do template com `UpdateTemplateData`.
+description: Atualiza campos do template usando o esquema parcial `UpdateTemplateData`.
 openapi: 'PUT /api/templates/{templateId}'
 ---
 
-Endpoint: `PUT /api/templates/{templateId}`
+<CodeGroup>
 
-Headers: `Authorization: Bearer <token>`, `Content-Type: application/json`
-
-Body (exemplo):
-```json
-{
-  "templateId": "abcd-1234",
-  "templateName": "Contrato v2",
-  "templateDescription": "Atualização",
-  "submissionType": "form",
-  "fields": [ { "type": "text", "identifier": "nome", "required": true, "x": 10, "y": 10, "w": 40, "h": 8 } ],
-  "advancedOptions": { "autoReminders": true, "reminderDelay": 2, "reminderFrequency": 3, "expirationDays": 30, "expirationWarning": 5 }
-}
+```bash cURL
+curl -X PUT "https://api.formsign.com.br/api/templates/tpl_123" \
+  -H "Authorization: Bearer <TOKEN>" -H "Content-Type: application/json" \
+  -d '{"templateId":"tpl_123","templateName":"Contrato v2","advancedOptions":{"autoReminders":true}}'
 ```
+
+</CodeGroup>
+
+### Parâmetros
+<ParamField path="templateId" type="string" required>ID do template</ParamField>
+
+### Body (parcial)
+<ParamField body="templateName" type="string">Nome do template.</ParamField>
+<ParamField body="templateDescription" type="string">Descrição.</ParamField>
+<ParamField body="submissionType" type="string">`form` ou `document`.</ParamField>
+<ParamField body="fields" type="array">Campos do template.</ParamField>
+<ParamField body="advancedOptions" type="object">Opções avançadas (lembretes/expiração).</ParamField>
+
+### Respostas
+<ResponseExample>
+```json 200
+{ "mensagem": "Template atualizado com sucesso", "dados": { "templateId":"tpl_123" } }
+```
+
+```json 400
+{ "error": "submissionType inválido" }
+```
+</ResponseExample>

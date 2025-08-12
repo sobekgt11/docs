@@ -1,11 +1,33 @@
 ---
 title: Obter Template
-description: GET /api/templates/{templateId} retorna os dados do template.
+description: Retorna os dados completos de um template específico.
 openapi: 'GET /api/templates/{templateId}'
 ---
 
-Endpoint: `GET /api/templates/{templateId}`
+<CodeGroup>
 
-Auth: `Authorization: Bearer <token>`
+```bash cURL
+curl -X GET "https://api.formsign.com.br/api/templates/tpl_123" \
+  -H "Authorization: Bearer <TOKEN>"
+```
 
-Erros: 400 (templateId ausente), 404 (não encontrado)
+</CodeGroup>
+
+### Parâmetros
+<ParamField path="templateId" type="string" required>ID do template.</ParamField>
+
+### Respostas
+<ResponseExample>
+```json 200
+{
+  "templateId":"tpl_123",
+  "templateName":"Contrato PDF",
+  "submissionType":"document",
+  "fields":[{"type":"signature","identifier":"assinatura"}]
+}
+```
+
+```json 404
+{ "error": "Template not found" }
+```
+</ResponseExample>

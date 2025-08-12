@@ -1,22 +1,93 @@
 ---
 title: /api/token
-description: Obtenha um token Bearer a partir de credenciais Basic (clientId:clientSecret).
+description: Gere um token Bearer (JWT de curta duração) usando credenciais Basic no formato `clientId:clientSecret`.
 openapi: 'POST /api/token'
 ---
+
+Use este endpoint para trocar suas credenciais de API (clientId e clientSecret) por um token Bearer válido por 1 hora. Este token será usado nas rotas autenticadas (Envelopes e Templates).
 
 ### Requisição
 - Método: `POST`
 - URL: `/api/token`
-- Headers: `Authorization: Basic <base64(clientId:clientSecret)>`
+- Header obrigatório: `Authorization: Basic <base64(clientId:clientSecret)>`
 
-```bash
+<CodeGroup>
+
+```bash cURL
 curl -X POST \
   -H "Authorization: Basic $(echo -n 'CLIENT_ID:CLIENT_SECRET' | base64)" \
-  https://SEU_HOST/api/token
+  https://api.formsign.com.br/api/token
 ```
 
-### Resposta
-```json
+```go Go
+package main
+
+import (
+  "encoding/base64"
+  "fmt"
+  "io"
+  "net/http"
+)
+
+func main() {
+  basic := base64.StdEncoding.EncodeToString([]byte("CLIENT_ID:CLIENT_SECRET"))
+  req, _ := http.NewRequest("POST", "https://api.formsign.com.br/api/token", nil)
+  req.Header.Set("Authorization", "Basic "+basic)
+  res, _ := http.DefaultClient.Do(req)
+  body, _ := io.ReadAll(res.Body)
+  fmt.Println(string(body))
+}
+```
+
+```javascript JavaScript
+const basic = Buffer.from('CLIENT_ID:CLIENT_SECRET').toString('base64');
+const res = await fetch('https://api.formsign.com.br/api/token', {
+  method: 'POST',
+  headers: { Authorization: `Basic ${basic}` }
+});
+console.log(await res.json());
+```
+
+```python Python
+import base64, requests
+
+basic = base64.b64encode(b'CLIENT_ID:CLIENT_SECRET').decode('utf-8')
+r = requests.post('https://api.formsign.com.br/api/token',
+                  headers={'Authorization': f'Basic {basic}'})
+print(r.json())
+```
+
+```java Java
+import java.net.*; import java.io.*; import java.util.*;
+import java.net.http.*; import java.util.Base64;
+
+public class Main {
+  public static void main(String[] args) throws Exception {
+    String creds = "CLIENT_ID:CLIENT_SECRET";
+    String basic = Base64.getEncoder().encodeToString(creds.getBytes());
+    HttpRequest req = HttpRequest.newBuilder()
+      .uri(URI.create("https://api.formsign.com.br/api/token"))
+      .header("Authorization", "Basic "+basic)
+      .POST(HttpRequest.BodyPublishers.noBody())
+      .build();
+    HttpResponse<String> res = HttpClient.newHttpClient().send(req, HttpResponse.BodyHandlers.ofString());
+    System.out.println(res.body());
+  }
+}
+```
+
+</CodeGroup>
+
+### Campos
+
+<ParamField header="Authorization" type="string" required>
+Credenciais no formato Basic: `Basic <base64(clientId:clientSecret)>`.
+</ParamField>
+
+### Respostas
+
+<ResponseExample>
+```json 200
 {
   "access_token": "<JWT>",
   "token_type": "Bearer",
@@ -24,4 +95,27 @@ curl -X POST \
 }
 ```
 
-Erros: 401 (credenciais inválidas), 405 (método incorreto).
+```json 401
+{ "error": "Credenciais inválidas" }
+```
+
+```json 405
+{ "error": "Método não permitido" }
+```
+</ResponseExample>
+
+### Estrutura da resposta
+
+<ResponseField name="access_token" type="string" required>
+JWT assinado com validade de 1 hora.
+</ResponseField>
+<ResponseField name="token_type" type="string" required>
+Sempre `Bearer`.
+</ResponseField>
+<ResponseField name="expires_in" type="number" required>
+Tempo de expiração em segundos (3600).
+</ResponseField>
+
+<Tip>
+Use o `access_token` nas rotas autenticadas enviando o header `Authorization: Bearer &lt;token&gt;`.
+</Tip>

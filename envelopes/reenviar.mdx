@@ -1,17 +1,51 @@
 ---
 title: Reenviar Envelope
-description: POST /api/envelopes/resend reenviar notificações de assinatura.
+description: Reenvia as notificações de assinatura para os destinatários do envelope.
 openapi: 'POST /api/envelopes/resend'
 ---
 
-Endpoint: `POST /api/envelopes/resend`
+<CodeGroup>
 
-Body:
-```json
-{ "envelopeId": "abcd-1234" }
+```bash cURL
+curl -X POST "https://api.formsign.com.br/api/envelopes/resend" \
+  -H "Authorization: Bearer <TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{"envelopeId":"env_123"}'
 ```
 
-Resposta 200 OK:
-```json
-{ "message": "Success", "envelopeId": "abcd-1234" }
+```javascript JavaScript
+await fetch('https://api.formsign.com.br/api/envelopes/resend',{
+  method:'POST', headers:{'Authorization':'Bearer <TOKEN>','Content-Type':'application/json'},
+  body: JSON.stringify({ envelopeId:'env_123' })
+});
 ```
+
+```python Python
+import requests
+r=requests.post('https://api.formsign.com.br/api/envelopes/resend',json={'envelopeId':'env_123'},headers={'Authorization':'Bearer <TOKEN>'})
+print(r.json())
+```
+
+```go Go
+// POST JSON {envelopeId} com Authorization: Bearer <TOKEN>
+```
+
+```java Java
+// POST JSON {envelopeId} com Authorization: Bearer <TOKEN>
+```
+
+</CodeGroup>
+
+### Parâmetros (Body)
+<ParamField body="envelopeId" type="string" required>ID do envelope.</ParamField>
+
+### Respostas
+<ResponseExample>
+```json 200
+{ "message": "Success", "envelopeId": "env_123" }
+```
+
+```json 400
+{ "error": "EnvelopeId ausente" }
+```
+</ResponseExample>

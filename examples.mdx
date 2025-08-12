@@ -3,18 +3,21 @@ title: Exemplos
 description: Exemplos cURL/JS/Go para fluxos comuns.
 ---
 
-## Obter token oauth e listar envelopes
+## Fluxo completo: obter token → enviar envelope → consultar status
 
 <CodeGroup>
 
 ```bash cURL
 TOKEN=$(curl -s -X POST \
   -H "Authorization: Basic $(echo -n 'CLIENT_ID:CLIENT_SECRET' | base64)" \
-  https://SEU_HOST/api/token | jq -r .access_token)
+  https://api.formsign.com.br/api/token | jq -r .access_token)
 
-curl -X GET \
-  -H "Authorization: Bearer $TOKEN" \
-  https://SEU_HOST/api/envelopes
+curl -X POST "https://api.formsign.com.br/api/envelopes/send" \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"subject":"Assine","message":"Olá","submissionType":"document","documentSettings":{"documentName":"contrato.pdf","fileHash":"<hash>"},"s3Key":"uploads/envelopes/contrato.pdf","fields":[{"type":"signature","identifier":"assinatura","required":true,"x":70,"y":90,"w":20,"h":8,"pageNumber":1}],"recipients":[{"email":"cliente@exemplo.com","name":"Cliente","signatureType":"draw","role":"signer"}]}'
+
+curl -X GET "https://api.formsign.com.br/api/envelopes/<ENVELOPE_ID>" \
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ```javascript Node.js

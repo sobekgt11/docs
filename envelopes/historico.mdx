@@ -1,13 +1,54 @@
 ---
 title: Histórico do Envelope
-description: GET /api/envelopes/{envelopeId}/history retorna os logs de acesso/ação.
+description: Retorna os eventos e logs de acesso/ação do envelope.
 openapi: 'GET /api/envelopes/{envelopeId}/history'
 ---
 
-Endpoint: `GET /api/envelopes/{envelopeId}/history`
+<CodeGroup>
 
-Auth: `Authorization: Bearer <token>`
+```bash cURL
+curl -X GET "https://api.formsign.com.br/api/envelopes/env_123/history" \
+  -H "Authorization: Bearer <TOKEN>"
+```
 
-Erros comuns:
-- 400 — envelopeId ausente
-- 500 — erro interno ao buscar histórico
+```javascript JavaScript
+await fetch('https://api.formsign.com.br/api/envelopes/env_123/history',{
+  headers:{'Authorization':'Bearer <TOKEN>'}
+});
+```
+
+```python Python
+import requests
+r=requests.get('https://api.formsign.com.br/api/envelopes/env_123/history',headers={'Authorization':'Bearer <TOKEN>'})
+print(r.json())
+```
+
+```go Go
+// GET /history com Authorization: Bearer <TOKEN>
+```
+
+```java Java
+// GET /history com Authorization: Bearer <TOKEN>
+```
+
+</CodeGroup>
+
+### Parâmetros
+<ParamField path="envelopeId" type="string" required>ID do envelope.</ParamField>
+
+### Respostas
+<ResponseExample>
+```json 200
+[
+  { "action": "sent", "executorName": "Remetente", "creationDate": "2025-01-01T12:00:00Z" }
+]
+```
+
+```json 401
+{ "error": "Unauthorized" }
+```
+
+```json 500
+{ "error": "Falha ao buscar histórico do envelope" }
+```
+</ResponseExample>

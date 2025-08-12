@@ -1,9 +1,26 @@
 ---
 title: Criar Draft
-description: POST /api/templates/drafts cria um rascunho de template.
+description: Cria um rascunho de template. As mesmas validações de criação se aplicam, com `status = draft`.
 openapi: 'POST /api/templates/drafts'
 ---
 
-Endpoint: `POST /api/templates/drafts`
+<CodeGroup>
 
-Validações: mesmas de `POST /api/templates`. O `status` é persistido como `draft`.
+```bash cURL
+curl -X POST "https://api.formsign.com.br/api/templates/drafts" \
+  -H "Authorization: Bearer <TOKEN>" -H "Content-Type: application/json" \
+  -d '{"templateName":"Contrato","submissionType":"document","documentSettings":{"documentName":"contrato.pdf","fileHash":"<hash>"},"s3Key":"uploads/templates/contrato.pdf","fields":[{"type":"signature","identifier":"assinatura","required":true,"x":70,"y":90,"w":20,"h":8,"pageNumber":1}]}'
+```
+
+```javascript JavaScript
+// semelhante ao POST /api/templates, direcionado para /api/templates/drafts
+```
+
+</CodeGroup>
+
+### Respostas
+<ResponseExample>
+```json 200
+{ "mensagem":"Dados salvos com sucesso", "dados": { "templateId":"tpl_123","status":"draft" } }
+```
+</ResponseExample>

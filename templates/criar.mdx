@@ -1,31 +1,76 @@
 ---
 title: Criar Template
-description: POST /api/templates cria um novo template.
+description: Cria um novo template (form ou document) com campos personalizáveis e opções avançadas.
 openapi: 'POST /api/templates'
 ---
 
-Endpoint: `POST /api/templates`
+<CodeGroup>
 
-Headers: `Authorization: Bearer <token>`, `Content-Type: application/json`
-
-Body (form):
-```json
-{
-  "templateName": "Contrato de Serviços",
-  "templateDescription": "Template para contratos",
-  "submissionType": "form",
-  "formSettings": { "numberOfColumns": 2, "view": "standard" },
-  "fields": [ { "type": "text", "identifier": "nome", "required": true, "x": 10, "y": 10, "w": 40, "h": 8 } ]
-}
+```bash cURL
+curl -X POST "https://api.formsign.com.br/api/templates" \
+  -H "Authorization: Bearer <TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "templateName":"Contrato PDF",
+    "submissionType":"document",
+    "documentSettings":{"documentName":"contrato.pdf","fileHash":"<hash>"},
+    "s3Key":"uploads/templates/contrato.pdf",
+    "fields":[{"type":"signature","identifier":"assinatura","required":true,"x":70,"y":90,"w":20,"h":8,"pageNumber":1}]
+  }'
 ```
 
-Body (document):
-```json
-{
-  "templateName": "Contrato PDF",
-  "submissionType": "document",
-  "documentSettings": { "documentName": "contrato.pdf", "fileHash": "<hash>" },
-  "s3Key": "uploads/templates/contrato.pdf",
-  "fields": [ { "type": "signature", "identifier": "assinatura", "required": true, "x": 70, "y": 90, "w": 20, "h": 8, "pageNumber": 1 } ]
-}
+```javascript JavaScript
+await fetch('https://api.formsign.com.br/api/templates',{
+  method:'POST', headers:{'Authorization':'Bearer <TOKEN>','Content-Type':'application/json'},
+  body: JSON.stringify({
+    templateName:'Contrato PDF', submissionType:'document',
+    documentSettings:{documentName:'contrato.pdf', fileHash:'<hash>'},
+    s3Key:'uploads/templates/contrato.pdf',
+    fields:[{type:'signature', identifier:'assinatura', required:true, x:70, y:90, w:20, h:8, pageNumber:1}]
+  })
+});
 ```
+
+```python Python
+import requests
+payload={
+  "templateName":"Contrato PDF","submissionType":"document",
+  "documentSettings":{"documentName":"contrato.pdf","fileHash":"<hash>"},
+  "s3Key":"uploads/templates/contrato.pdf",
+  "fields":[{"type":"signature","identifier":"assinatura","required":True,"x":70,"y":90,"w":20,"h":8,"pageNumber":1}]
+}
+r=requests.post('https://api.formsign.com.br/api/templates',json=payload,headers={'Authorization':'Bearer <TOKEN>'})
+print(r.json())
+```
+
+```go Go
+// POST JSON para /api/templates com Authorization: Bearer <TOKEN>
+```
+
+```java Java
+// POST JSON para /api/templates com Authorization: Bearer <TOKEN>
+```
+
+</CodeGroup>
+
+### Parâmetros (Body)
+<ParamField body="submissionType" type="string" required>"form" ou "document".</ParamField>
+<ParamField body="formSettings" type="object">Configurações de formulário (quando submissionType = form).</ParamField>
+<ParamField body="documentSettings" type="object">Configurações do documento (quando submissionType = document).</ParamField>
+<ParamField body="s3Key" type="string">Obrigatório quando `submissionType=document`.</ParamField>
+<ParamField body="fields" type="array" required>Campos a serem preenchidos/assinados.</ParamField>
+
+### Respostas
+<ResponseExample>
+```json 200
+{ "mensagem":"Dados salvos com sucesso", "dados": { "templateId":"tpl_123","status":"created" } }
+```
+
+```json 400
+{ "error": "S3Key é obrigatório para submissionType 'document'" }
+```
+
+```json 401
+{ "error": "Unauthorized" }
+```
+</ResponseExample>

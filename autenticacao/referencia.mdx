@@ -9,8 +9,19 @@ Nesta seção você encontrará:
 - JWT Bearer para rotas autenticadas (Envelopes e Templates)
 - Obtenção de token via Basic em `/api/token`
 
-Fluxos:
+### Como autenticar
 - Envie `Authorization: Bearer <token>` para consumir as rotas protegidas.
 - Obtenha o token com `POST /api/token` usando `Authorization: Basic <base64(clientId:clientSecret)>`.
+
+### Criar API Client (chave de API)
+Use o dashboard para criar um Client ID/Secret. Em breve colocaremos os screenshots aqui.
+
+Passos sugeridos:
+- Acesse o menu Integrações → API Clients
+- Clique em “Criar Client” e dê um nome descritivo
+- Copie o `clientId` e o `clientSecret` gerados
+- Guarde as credenciais em um cofre de segredos
+
+Depois de criar seu cliente, gere tokens via `/api/token` e utilize como Bearer nas chamadas.
 
 Consulte também: `autenticacao/token`.
