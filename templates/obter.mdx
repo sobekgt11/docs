@@ -24,8 +24,8 @@ curl -X GET "https://api.formsign.com.br/api/templates/tpl_123" \
 {
   "templateId":"tpl_123",
   "templateName":"Contrato PDF",
-  "submissionType":"document",
-  "fields":[{"type":"signature","identifier":"assinatura"}]
+  "fields":[{"type":"signature","identifier":"assinatura"}],
+  "documentSettings": {"documentName":"contrato.pdf"}
 }
 ```
 
@@ -33,3 +33,19 @@ curl -X GET "https://api.formsign.com.br/api/templates/tpl_123" \
 { "error": "Template not found" }
 ```
 </ResponseExample>
+
+### Campos de resposta
+
+<ResponseField name="documentSettings" type="object">
+Configurações do documento PDF.
+  <Expandable title="documentSettings">
+    <ResponseField name="documentName" type="string">Nome do arquivo.</ResponseField>
+  </Expandable>
+</ResponseField>
+<ResponseField name="fields" type="array">
+Campos definidos no template.
+  <Expandable title="fields[] (DadosFormulario)">
+    <ResponseField name="type" type="string">Tipo do campo.</ResponseField>
+    <ResponseField name="identifier" type="string">Identificador.</ResponseField>
+  </Expandable>
+</ResponseField>

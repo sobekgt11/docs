@@ -56,11 +56,23 @@ print(r.json())
 </RequestExample>
 
 ### Parâmetros (Body)
-<ParamField body="submissionType" type="string" required>"form" ou "document".</ParamField>
-<ParamField body="formSettings" type="object">Configurações de formulário (quando submissionType = form).</ParamField>
-<ParamField body="documentSettings" type="object">Configurações do documento (quando submissionType = document).</ParamField>
-<ParamField body="s3Key" type="string">Obrigatório quando `submissionType=document`.</ParamField>
+<ParamField body="documentSettings" type="object" required>Configurações do documento PDF.</ParamField>
+<Expandable title="documentSettings">
+  <ParamField body="documentSettings.documentName" type="string" required>Nome do arquivo exibido.</ParamField>
+  <ParamField body="documentSettings.fileHash" type="string" required>Hash do arquivo para verificação.</ParamField>
+  </Expandable>
+<ParamField body="s3Key" type="string" required>Chave do arquivo no S3.</ParamField>
 <ParamField body="fields" type="array" required>Campos a serem preenchidos/assinados.</ParamField>
+<Expandable title="fields[] (DadosFormulario)">
+  <ParamField body="fields[].type" type="string" required>Tipo do campo.</ParamField>
+  <ParamField body="fields[].identifier" type="string" required>Identificador único.</ParamField>
+  <ParamField body="fields[].required" type="boolean" required>Obrigatoriedade.</ParamField>
+  <ParamField body="fields[].x" type="number" required>Posição X.</ParamField>
+  <ParamField body="fields[].y" type="number" required>Posição Y.</ParamField>
+  <ParamField body="fields[].w" type="number" required>Largura.</ParamField>
+  <ParamField body="fields[].h" type="number" required>Altura.</ParamField>
+  <ParamField body="fields[].pageNumber" type="integer" required>Número da página.</ParamField>
+</Expandable>
 
 ### Respostas
 <ResponseExample>

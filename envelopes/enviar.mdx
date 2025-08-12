@@ -1,13 +1,12 @@
 ---
 title: Enviar Envelope
-description: Cria e envia um envelope para assinatura. Suporta campos personalizados e múltiplos destinatários.
+description: Cria e envia um envelope para assinatura de um documento PDF já hospedado (S3), com campos personalizados e múltiplos destinatários.
 openapi: 'POST /api/envelopes/send'
 ---
 
-Use este endpoint para iniciar um fluxo de assinatura. Para `submissionType = document`, o arquivo deve estar no S3 e o `s3Key` é obrigatório.
+Use este endpoint para iniciar um fluxo de assinatura. O arquivo deve estar no S3 e o `s3Key` é obrigatório.
 
 <RequestExample>
-<CodeGroup>
 
 ```bash cURL
 curl -X POST "https://api.formsign.com.br/api/envelopes/send" \
@@ -28,7 +27,7 @@ curl -X POST "https://api.formsign.com.br/api/envelopes/send" \
 package main
 import ("bytes"; "fmt"; "net/http")
 func main(){
-  body := []byte(`{"subject":"Assine o contrato","message":"Olá","submissionType":"document","documentSettings":{"documentName":"contrato.pdf","fileHash":"<hash>"},"s3Key":"uploads/envelopes/contrato.pdf","fields":[{"type":"signature","identifier":"assinatura","required":true,"x":70,"y":90,"w":20,"h":8,"pageNumber":1}],"recipients":[{"email":"cliente@exemplo.com","name":"Cliente","signatureType":"draw","role":"signer"}]}`)
+  body := []byte(`{"subject":"Assine o contrato","message":"Olá","documentSettings":{"documentName":"contrato.pdf","fileHash":"<hash>"},"s3Key":"uploads/envelopes/contrato.pdf","fields":[{"type":"signature","identifier":"assinatura","required":true,"x":70,"y":90,"w":20,"h":8,"pageNumber":1}],"recipients":[{"email":"cliente@exemplo.com","name":"Cliente","signatureType":"draw","role":"signer"}]}`)
   req, _ := http.NewRequest("POST","https://api.formsign.com.br/api/envelopes/send", bytes.NewBuffer(body))
   req.Header.Set("Authorization","Bearer <TOKEN>")
   req.Header.Set("Content-Type","application/json")
@@ -42,8 +41,8 @@ await fetch('https://api.formsign.com.br/api/envelopes/send',{
   method:'POST',
   headers:{'Authorization':'Bearer <TOKEN>','Content-Type':'application/json'},
   body: JSON.stringify({
-    subject:'Assine o contrato', message:'Olá', submissionType:'document',
-    documentSettings:{documentName:'contrato.pdf', fileHash:'<hash>'},
+    subject:'Assine o contrato', message:'Olá',
+    documentSettings:{ documentName:'contrato.pdf', fileHash:'<hash>' },
     s3Key:'uploads/envelopes/contrato.pdf',
     fields:[{type:'signature', identifier:'assinatura', required:true, x:70, y:90, w:20, h:8, pageNumber:1}],
     recipients:[{email:'cliente@exemplo.com', name:'Cliente', signatureType:'draw', role:'signer'}]
@@ -54,7 +53,7 @@ await fetch('https://api.formsign.com.br/api/envelopes/send',{
 ```python Python
 import requests
 payload={
-  "subject":"Assine o contrato","message":"Olá","submissionType":"document",
+  "subject":"Assine o contrato","message":"Olá",
   "documentSettings":{"documentName":"contrato.pdf","fileHash":"<hash>"},
   "s3Key":"uploads/envelopes/contrato.pdf",
   "fields":[{"type":"signature","identifier":"assinatura","required":True,"x":70,"y":90,"w":20,"h":8,"pageNumber":1}],
@@ -68,24 +67,31 @@ print(r.json())
 // Usando HttpClient (Java 11+)
 // Monte o JSON como string e envie com header Authorization: Bearer <TOKEN>
 ```
-
-</CodeGroup>
 </RequestExample>
 
 ### Parâmetros
 
-<ParamField body="submissionType" type="string" required>
-"form" ou "document". Para "document" é obrigatório informar `s3Key` e `documentSettings`.
-</ParamField>
 <ParamField body="s3Key" type="string">
 Caminho do arquivo no S3 (obrigatório quando `submissionType=document`).
 </ParamField>
-<ParamField body="documentSettings.fileHash" type="string">
-Hash do arquivo para verificação de integridade.
-</ParamField>
+<ParamField body="documentSettings" type="object" required>Configurações do documento PDF.</ParamField>
+<Expandable title="documentSettings">
+  <ParamField body="documentSettings.documentName" type="string" required>Nome do arquivo exibido.</ParamField>
+  <ParamField body="documentSettings.fileHash" type="string" required>Hash do arquivo para verificação.</ParamField>
+</Expandable>
 <ParamField body="fields" type="array" required>
 Campos do documento (ex.: assinatura, texto, data). Cada item segue `DadosFormulario`.
 </ParamField>
+<Expandable title="fields[] (DadosFormulario)">
+  <ParamField body="fields[].type" type="string" required>Tipo do campo (ex.: signature, text, date).</ParamField>
+  <ParamField body="fields[].identifier" type="string" required>Identificador único do campo.</ParamField>
+  <ParamField body="fields[].required" type="boolean" required>Se o preenchimento é obrigatório.</ParamField>
+  <ParamField body="fields[].x" type="number" required>Posição X (%) na página.</ParamField>
+  <ParamField body="fields[].y" type="number" required>Posição Y (%) na página.</ParamField>
+  <ParamField body="fields[].w" type="number" required>Largura (%).</ParamField>
+  <ParamField body="fields[].h" type="number" required>Altura (%).</ParamField>
+  <ParamField body="fields[].pageNumber" type="integer" required>Número da página.</ParamField>
+</Expandable>
 <ParamField body="recipients" type="array" required>
 Lista de destinatários (email, name, signatureType, role).
 </ParamField>
