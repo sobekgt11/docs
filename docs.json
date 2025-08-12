@@ -29,7 +29,7 @@
   "navbar": {
     "links": [],
     "primary": {
-      "type": "link",
+      "type": "button",
       "label": "FormSign",
       "href": "https://formsign.com.br"
     }
