@@ -1,0 +1,25 @@
+---
+title: Autenticação
+description: Como autenticar chamadas na API do FormSign usando Bearer JWT e obtenção de token via Basic.
+---
+
+### 1) Bearer JWT nas rotas autenticadas
+- Envie o header `Authorization: Bearer <token>` nas rotas de `templates` e `envelopes`.
+
+### 2) Obtenção de token via Basic (server-to-server)
+- `POST /api/token` com `Authorization: Basic <base64(clientId:clientSecret)>`.
+- Resposta: `{ access_token, token_type: "Bearer", expires_in }`.
+
+```bash
+# Obter token
+curl -X POST \
+  -H "Authorization: Basic $(echo -n 'clientId:clientSecret' | base64)" \
+  https://SEU_HOST/api/token
+
+# Usar token
+curl -X GET \
+  -H "Authorization: Bearer <ACCESS_TOKEN>" \
+  https://SEU_HOST/api/envelopes
+```
+
+

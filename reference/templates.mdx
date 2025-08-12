@@ -1,0 +1,22 @@
+---
+title: Templates
+description: Endpoints de criação, listagem, consulta e atualização de templates.
+---
+
+Autenticação: `Authorization: Bearer <token>`
+
+## POST /api/templates — Criar template
+Corpo (form/document) conforme necessidade. Campos principais: `templateName`, `submissionType`, `fields`, `formSettings` ou `documentSettings` + `s3Key`.
+
+## POST /api/templates/drafts — Criar rascunho
+Idêntico ao create, porém salvo com `status = draft`.
+
+## GET /api/templates — Listar templates
+Query: `page`, `pageSize`, `searchText`, `lastUpdateStartDate`, `lastUpdateEndDate`.
+
+## GET /api/templates/{templateId} — Obter template
+
+## PUT /api/templates/{templateId} — Atualizar template
+Body segue `UpdateTemplateData` com campos parciais.
+
+

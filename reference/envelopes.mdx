@@ -1,0 +1,24 @@
+---
+title: Envelopes
+description: Endpoints para envio, reenvio, cancelamento e consulta de envelopes.
+---
+
+Autenticação: `Authorization: Bearer <token>`
+
+## GET /api/envelopes — Listar
+Query: `page`, `pageSize`, `searchText`, `lastUpdateStartDate`, `lastUpdateEndDate`, `status`.
+
+## GET /api/envelopes/{envelopeId} — Obter
+
+## GET /api/envelopes/{envelopeId}/history — Histórico
+
+## POST /api/envelopes/send — Enviar
+Body mínimo: `submissionType`, `documentSettings` + `s3Key`, `fields`, `recipients`.
+
+## POST /api/envelopes/resend — Reenviar
+Body: `{ "envelopeId": "..." }`
+
+## POST /api/envelopes/void — Anular
+Body: `{ "envelopeId": "...", "justificativa": "..." }`
+
+

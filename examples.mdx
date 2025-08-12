@@ -1,0 +1,58 @@
+---
+title: Exemplos
+description: Exemplos cURL/JS/Go para fluxos comuns.
+---
+
+## Obter token e listar envelopes
+
+<CodeGroup>
+
+```bash cURL
+TOKEN=$(curl -s -X POST \
+  -H "Authorization: Basic $(echo -n 'CLIENT_ID:CLIENT_SECRET' | base64)" \
+  https://SEU_HOST/api/token | jq -r .access_token)
+
+curl -X GET \
+  -H "Authorization: Bearer $TOKEN" \
+  https://SEU_HOST/api/envelopes
+```
+
+```javascript Node.js
+import fetch from 'node-fetch';
+
+const basic = Buffer.from('CLIENT_ID:CLIENT_SECRET').toString('base64');
+const tokenResp = await fetch('https://SEU_HOST/api/token', {
+  method: 'POST',
+  headers: { Authorization: `Basic ${basic}` }
+});
+const { access_token } = await tokenResp.json();
+
+const resp = await fetch('https://SEU_HOST/api/envelopes', {
+  headers: { Authorization: `Bearer ${access_token}` }
+});
+console.log(await resp.json());
+```
+
+```go Go
+package main
+
+import (
+  "encoding/base64"
+  "fmt"
+  "io"
+  "net/http"
+)
+
+func main() {
+  basic := base64.StdEncoding.EncodeToString([]byte("CLIENT_ID:CLIENT_SECRET"))
+  req, _ := http.NewRequest("POST", "https://SEU_HOST/api/token", nil)
+  req.Header.Set("Authorization", "Basic "+basic)
+  res, _ := http.DefaultClient.Do(req)
+  body, _ := io.ReadAll(res.Body)
+  fmt.Println(string(body))
+}
+```
+
+</CodeGroup>
+
+
