@@ -4,6 +4,7 @@ description: Cancela um envelope, impedindo novas assinaturas.
 openapi: 'POST /api/envelopes/void'
 ---
 
+<RequestExample>
 <CodeGroup>
 
 ```bash cURL
@@ -35,6 +36,7 @@ print(r.json())
 ```
 
 </CodeGroup>
+</RequestExample>
 
 ### Parâmetros (Body)
 <ParamField body="envelopeId" type="string" required>ID do envelope.</ParamField>

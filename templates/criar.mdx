@@ -4,6 +4,7 @@ description: Cria um novo template (form ou document) com campos personalizávei
 openapi: 'POST /api/templates'
 ---
 
+<RequestExample>
 <CodeGroup>
 
 ```bash cURL
@@ -52,6 +53,7 @@ print(r.json())
 ```
 
 </CodeGroup>
+</RequestExample>
 
 ### Parâmetros (Body)
 <ParamField body="submissionType" type="string" required>"form" ou "document".</ParamField>

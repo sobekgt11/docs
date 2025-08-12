@@ -4,6 +4,7 @@ description: Reenvia as notificações de assinatura para os destinatários do e
 openapi: 'POST /api/envelopes/resend'
 ---
 
+<RequestExample>
 <CodeGroup>
 
 ```bash cURL
@@ -35,6 +36,7 @@ print(r.json())
 ```
 
 </CodeGroup>
+</RequestExample>
 
 ### Parâmetros (Body)
 <ParamField body="envelopeId" type="string" required>ID do envelope.</ParamField>

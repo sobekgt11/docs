@@ -4,6 +4,7 @@ description: Retorna uma lista paginada de templates com filtros de busca e data
 openapi: 'GET /api/templates'
 ---
 
+<RequestExample>
 <CodeGroup>
 
 ```bash cURL
@@ -18,7 +19,9 @@ await fetch('https://api.formsign.com.br/api/templates?page=1&pageSize=10',{
 });
 ```
 
+
 </CodeGroup>
+</RequestExample>
 
 ### Parâmetros de Query
 <ParamField query="page" type="integer" default="1">Número da página.</ParamField>

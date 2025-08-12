@@ -4,6 +4,7 @@ description: Retorna os eventos e logs de acesso/ação do envelope.
 openapi: 'GET /api/envelopes/{envelopeId}/history'
 ---
 
+<RequestExample>
 <CodeGroup>
 
 ```bash cURL
@@ -32,6 +33,7 @@ print(r.json())
 ```
 
 </CodeGroup>
+</RequestExample>
 
 ### Parâmetros
 <ParamField path="envelopeId" type="string" required>ID do envelope.</ParamField>

@@ -36,7 +36,6 @@
           { "group": "Templates", "pages": [
             "templates/referencia",
             "templates/criar",
-            "templates/draft",
             "templates/listar",
             "templates/obter",
             "templates/atualizar"

@@ -6,6 +6,7 @@ openapi: 'POST /api/envelopes/send'
 
 Use este endpoint para iniciar um fluxo de assinatura. Para `submissionType = document`, o arquivo deve estar no S3 e o `s3Key` é obrigatório.
 
+<RequestExample>
 <CodeGroup>
 
 ```bash cURL
@@ -69,6 +70,7 @@ print(r.json())
 ```
 
 </CodeGroup>
+</RequestExample>
 
 ### Parâmetros
 
