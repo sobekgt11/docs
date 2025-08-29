@@ -1,47 +1,85 @@
 ---
 title: Comece por aqui
-description: Visão geral do FormSign e do fluxo básico de envio e acompanhamento de documentos para assinatura.
+description: API FormSign Base64 - Envie documentos PDF diretamente para assinatura eletrônica.
 icon: rocket
 ---
 
-O FormSign é uma plataforma de assinatura eletrônica focada em simplicidade e flexibilidade. Você pode enviar documentos para assinatura com campos totalmente personalizáveis (texto, data, assinatura, checkbox e outros), definir a ordem de signatários, configurar lembretes automáticos e acompanhar o status em tempo real.
+Bem-vindo à API FormSign Base64! Esta documentação foca especificamente nas APIs que permitem enviar documentos PDF diretamente no formato base64, ideais para integrações server-to-server que não querem gerenciar uploads de arquivos.
 
-### Como funciona em 2 passos
+## O que é diferente nas APIs Base64?
 
-1) Enviar o envelope para assinatura
-- Use o endpoint `POST /api/envelopes/send` para criar e disparar um envelope. 
-- Informe os campos do documento, os destinatários e as opções avançadas (lembretes, expiração, etc.).
+🚀 **Upload direto**: Envie o PDF codificado em base64 diretamente na requisição  
+📦 **Sem S3**: Não precisa fazer upload prévio para S3  
+⚡ **Mais simples**: Um único endpoint para cada operação  
+🛡️ **Validação automática**: PDF é validado automaticamente (tamanho, formato)  
+🔧 **Server-to-server**: Ideal para automações e integrações  
 
-2) Acompanhar o status do envelope
-- Consulte o endpoint `GET /api/envelopes/{envelopeId}` para saber se o envelope está pendente, enviado, concluído ou anulado, além de metadados úteis como datas, destinatários e links relevantes.
+## Como funciona em 2 passos
 
-### Exemplo de uso
+### 1) Enviar envelope com documento base64
+Use o endpoint `POST /api/envelopes/send/base64` para criar e enviar um envelope com PDF em base64.
+
+### 2) Ou criar template com documento base64  
+Use o endpoint `POST /api/templates/base64` para criar templates reutilizáveis com PDF em base64.
+
+## Exemplo rápido: Enviar envelope
 
 ```bash
-# 1) Enviar envelope (documento PDF já no S3)
-curl -X POST "https://api.formsign.com.br/api/envelopes/send" \
+# Converter PDF para base64 (Linux/macOS)
+PDF_BASE64=$(base64 -w 0 contrato.pdf)
+
+# Enviar envelope
+curl -X POST "https://api.formsign.com.br/api/envelopes/send/base64" \
   -H "Authorization: Bearer <SEU_TOKEN>" \
   -H "Content-Type: application/json" \
-  -d '{
-    "subject": "Assine o contrato",
-    "message": "Olá, por favor assine o documento.",
-    "submissionType": "document",
-    "documentSettings": { "documentName": "contrato.pdf", "fileHash": "<hash-do-arquivo>" },
-    "s3Key": "uploads/envelopes/contrato.pdf",
-    "fields": [
-      { "type": "signature", "identifier": "assinatura", "required": true, "x": 70, "y": 90, "w": 20, "h": 8, "pageNumber": 1 }
+  -d "{
+    \"subject\": \"Contrato para Assinatura\",
+    \"message\": \"Por favor, revise e assine o documento.\",
+    \"submissionType\": \"document\",
+    \"base64Document\": \"$PDF_BASE64\",
+    \"documentName\": \"contrato.pdf\",
+    \"fields\": [
+      {
+        \"type\": \"signature\",
+        \"identifier\": \"assinatura_cliente\",
+        \"required\": true,
+        \"x\": 70,
+        \"y\": 90,
+        \"w\": 20,
+        \"h\": 8,
+        \"pageNumber\": 1
+      }
     ],
-    "recipients": [
-      { "email": "cliente@exemplo.com", "name": "Cliente", "signatureType": "draw", "role": "signer" }
+    \"recipients\": [
+      {
+        \"email\": \"cliente@example.com\",
+        \"name\": \"João Silva\",
+        \"signatureType\": \"draw\",
+        \"role\": \"signer\"
+      }
     ]
-  }'
-
-# 2) Consultar status do envelope
-curl -X GET "https://api.formsign.com.br/api/envelopes/<ENVELOPE_ID>" \
-  -H "Authorization: Bearer <SEU_TOKEN>"
+  }"
 ```
 
-- Detalhes do envio: veja `Envelopes → Enviar Envelope`.
-- Detalhes de consulta: veja `Envelopes → Obter Envelope`.
+## Autenticação
 
-Para autenticar, gere um token via `POST /api/token` (Basic) e utilize-o como Bearer nas chamadas autenticadas. Consulte `Autenticação` para mais detalhes.
+Para usar as APIs, você precisa de um token Bearer. Obtenha via:
+
+```bash
+curl -X POST "https://api.formsign.com.br/api/token" \
+  -H "Authorization: Basic $(echo -n 'CLIENT_ID:CLIENT_SECRET' | base64)"
+```
+
+## Validações importantes
+
+- ✅ **PDF válido**: Documento deve ter magic bytes `%PDF`
+- ✅ **Tamanho máximo**: 10MB por documento  
+- ✅ **Extensão**: Nome do arquivo deve terminar com `.pdf`
+- ✅ **Base64**: Formato correto, sem prefixos data URL
+
+## Próximos passos
+
+- 🎯 **Templates**: Crie modelos reutilizáveis → `Templates Base64`
+- 📧 **Envelopes**: Envie documentos para assinatura → `Envelopes Base64`  
+- 🔐 **Autenticação**: Configure tokens → `Autenticação`
+- 💡 **Exemplos**: Veja código completo → `Exemplos`

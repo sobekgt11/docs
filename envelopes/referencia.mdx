@@ -1,16 +1,29 @@
 ---
 title: Envelopes — Referência
-description: Descrição dos endpoints de envelopes e como usá-los.
+description: API para enviar envelopes com documento PDF em formato base64.
 icon: envelope
 ---
 
-Esta seção cobre as operações com envelopes:
+A API de envelopes permite criar e enviar documentos para assinatura enviando o PDF diretamente no formato base64, ideal para integrações server-to-server.
 
-- GET `/api/envelopes` — listar envelopes
-- GET `/api/envelopes/{envelopeId}` — obter envelope
-- GET `/api/envelopes/{envelopeId}/history` — histórico
-- POST `/api/envelopes/send` — enviar envelope
-- POST `/api/envelopes/resend` — reenviar
-- POST `/api/envelopes/void` — anular
+## Operação Disponível:
 
-Requer `Authorization: Bearer <token>`.
+- POST `/api/envelopes/send/base64` — enviar envelope com documento base64
+
+## Características:
+
+- **Upload direto**: Envie o PDF codificado em base64
+- **Validação automática**: O sistema valida se é um PDF válido
+- **Limite de tamanho**: Máximo 10MB por documento
+- **Múltiplos destinatários**: Configure vários signatários
+- **Campos personalizáveis**: Configure campos de assinatura, texto, data, etc.
+- **Envio automático**: O envelope é enviado imediatamente após criação
+- **Autenticação**: Requer `Authorization: Bearer <token>`
+
+## Para quem é ideal:
+
+- Integrações server-to-server
+- Sistemas que já possuem PDFs em memória
+- Automações de envio de contratos
+- Aplicações que não querem gerenciar uploads
+- Workflows que precisam de envio imediato

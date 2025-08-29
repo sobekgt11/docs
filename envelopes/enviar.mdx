@@ -1,126 +1,358 @@
 ---
-title: Enviar Envelope
-description: Cria e envia um envelope para assinatura de um documento PDF já hospedado (S3), com campos personalizados e múltiplos destinatários.
-openapi: 'POST /api/envelopes/send'
+title: Enviar Envelope com Base64
+description: Cria e envia um envelope para assinatura com documento PDF em formato base64.
+openapi: 'POST /api/envelopes/send/base64'
 ---
 
-Use este endpoint para iniciar um fluxo de assinatura. O arquivo deve estar no S3 e o `s3Key` é obrigatório.
+Este endpoint permite criar e enviar envelopes enviando o PDF diretamente codificado em base64, eliminando a necessidade de fazer upload para S3 previamente. O envelope é enviado automaticamente para os destinatários após a criação.
 
 <RequestExample>
+<CodeGroup>
 
 ```bash cURL
-curl -X POST "https://api.formsign.com.br/api/envelopes/send" \
+curl -X POST "https://api.formsign.com.br/api/envelopes/send/base64" \
   -H "Authorization: Bearer <TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{
-    "subject": "Assine o contrato",
-    "message": "Olá, por favor assine.",
+    "subject": "Contrato para Assinatura",
+    "message": "Por favor, revise e assine o documento anexo.",
     "submissionType": "document",
-    "documentSettings": { "documentName": "contrato.pdf", "fileHash": "<hash>" },
-    "s3Key": "uploads/envelopes/contrato.pdf",
-    "fields": [ { "type": "signature", "identifier": "assinatura", "required": true, "x": 70, "y": 90, "w": 20, "h": 8, "pageNumber": 1 } ],
-    "recipients": [ { "email": "cliente@exemplo.com", "name": "Cliente", "signatureType": "draw", "role": "signer" } ]
+    "base64Document": "JVBERi0xLjQKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFsgMyAwIFIgXQovQ291bnQgMQo+PgplbmRvYmoK...",
+    "documentName": "contrato.pdf",
+    "fields": [
+      {
+        "type": "signature",
+        "identifier": "assinatura_cliente",
+        "required": true,
+        "x": 70,
+        "y": 90,
+        "w": 20,
+        "h": 8,
+        "pageNumber": 1
+      },
+      {
+        "type": "date",
+        "identifier": "data_assinatura",
+        "required": true,
+        "x": 70,
+        "y": 80,
+        "w": 20,
+        "h": 6,
+        "pageNumber": 1
+      }
+    ],
+    "recipients": [
+      {
+        "email": "cliente@example.com",
+        "name": "João Silva",
+        "signatureType": "draw",
+        "role": "signer"
+      }
+    ],
+    "advancedOptions": {
+      "autoReminders": true,
+      "reminderDelay": 2,
+      "reminderFrequency": 3,
+      "expirationDays": 30,
+      "expirationWarning": 5
+    }
   }'
 ```
 
-```go Go
-package main
-import ("bytes"; "fmt"; "net/http")
-func main(){
-  body := []byte(`{"subject":"Assine o contrato","message":"Olá","documentSettings":{"documentName":"contrato.pdf","fileHash":"<hash>"},"s3Key":"uploads/envelopes/contrato.pdf","fields":[{"type":"signature","identifier":"assinatura","required":true,"x":70,"y":90,"w":20,"h":8,"pageNumber":1}],"recipients":[{"email":"cliente@exemplo.com","name":"Cliente","signatureType":"draw","role":"signer"}]}`)
-  req, _ := http.NewRequest("POST","https://api.formsign.com.br/api/envelopes/send", bytes.NewBuffer(body))
-  req.Header.Set("Authorization","Bearer <TOKEN>")
-  req.Header.Set("Content-Type","application/json")
-  res,_ := http.DefaultClient.Do(req)
-  fmt.Println(res.Status)
-}
-```
-
 ```javascript JavaScript
-await fetch('https://api.formsign.com.br/api/envelopes/send',{
-  method:'POST',
-  headers:{'Authorization':'Bearer <TOKEN>','Content-Type':'application/json'},
+const response = await fetch('https://api.formsign.com.br/api/envelopes/send/base64', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer <TOKEN>',
+    'Content-Type': 'application/json'
+  },
   body: JSON.stringify({
-    subject:'Assine o contrato', message:'Olá',
-    documentSettings:{ documentName:'contrato.pdf', fileHash:'<hash>' },
-    s3Key:'uploads/envelopes/contrato.pdf',
-    fields:[{type:'signature', identifier:'assinatura', required:true, x:70, y:90, w:20, h:8, pageNumber:1}],
-    recipients:[{email:'cliente@exemplo.com', name:'Cliente', signatureType:'draw', role:'signer'}]
+    subject: 'Contrato para Assinatura',
+    message: 'Por favor, revise e assine o documento anexo.',
+    submissionType: 'document',
+    base64Document: 'JVBERi0xLjQKMSAwIG9iago...',
+    documentName: 'contrato.pdf',
+    fields: [
+      {
+        type: 'signature',
+        identifier: 'assinatura_cliente',
+        required: true,
+        x: 70,
+        y: 90,
+        w: 20,
+        h: 8,
+        pageNumber: 1
+      },
+      {
+        type: 'date',
+        identifier: 'data_assinatura',
+        required: true,
+        x: 70,
+        y: 80,
+        w: 20,
+        h: 6,
+        pageNumber: 1
+      }
+    ],
+    recipients: [
+      {
+        email: 'cliente@example.com',
+        name: 'João Silva',
+        signatureType: 'draw',
+        role: 'signer'
+      }
+    ],
+    advancedOptions: {
+      autoReminders: true,
+      reminderDelay: 2,
+      reminderFrequency: 3,
+      expirationDays: 30,
+      expirationWarning: 5
+    }
   })
 });
+
+const result = await response.json();
+console.log('Envelope ID:', result.envelopeId);
 ```
 
 ```python Python
 import requests
-payload={
-  "subject":"Assine o contrato","message":"Olá",
-  "documentSettings":{"documentName":"contrato.pdf","fileHash":"<hash>"},
-  "s3Key":"uploads/envelopes/contrato.pdf",
-  "fields":[{"type":"signature","identifier":"assinatura","required":True,"x":70,"y":90,"w":20,"h":8,"pageNumber":1}],
-  "recipients":[{"email":"cliente@exemplo.com","name":"Cliente","signatureType":"draw","role":"signer"}]
+import base64
+
+# Ler arquivo PDF e converter para base64
+with open('contrato.pdf', 'rb') as f:
+    pdf_base64 = base64.b64encode(f.read()).decode('utf-8')
+
+payload = {
+    "subject": "Contrato para Assinatura",
+    "message": "Por favor, revise e assine o documento anexo.",
+    "submissionType": "document",
+    "base64Document": pdf_base64,
+    "documentName": "contrato.pdf",
+    "fields": [
+        {
+            "type": "signature",
+            "identifier": "assinatura_cliente",
+            "required": True,
+            "x": 70,
+            "y": 90,
+            "w": 20,
+            "h": 8,
+            "pageNumber": 1
+        },
+        {
+            "type": "date",
+            "identifier": "data_assinatura", 
+            "required": True,
+            "x": 70,
+            "y": 80,
+            "w": 20,
+            "h": 6,
+            "pageNumber": 1
+        }
+    ],
+    "recipients": [
+        {
+            "email": "cliente@example.com",
+            "name": "João Silva",
+            "signatureType": "draw",
+            "role": "signer"
+        }
+    ],
+    "advancedOptions": {
+        "autoReminders": True,
+        "reminderDelay": 2,
+        "reminderFrequency": 3,
+        "expirationDays": 30,
+        "expirationWarning": 5
+    }
 }
-r=requests.post('https://api.formsign.com.br/api/envelopes/send',json=payload,headers={'Authorization':'Bearer <TOKEN>'})
-print(r.json())
+
+response = requests.post(
+    'https://api.formsign.com.br/api/envelopes/send/base64',
+    json=payload,
+    headers={'Authorization': 'Bearer <TOKEN>'}
+)
+
+result = response.json()
+print(f"Envelope ID: {result['envelopeId']}")
 ```
 
-```java Java
-// Usando HttpClient (Java 11+)
-// Monte o JSON como string e envie com header Authorization: Bearer <TOKEN>
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/base64"
+    "encoding/json"
+    "fmt"
+    "io/ioutil"
+    "net/http"
+)
+
+func main() {
+    // Ler arquivo PDF
+    pdfBytes, err := ioutil.ReadFile("contrato.pdf")
+    if err != nil {
+        panic(err)
+    }
+    
+    // Converter para base64
+    pdfBase64 := base64.StdEncoding.EncodeToString(pdfBytes)
+    
+    payload := map[string]interface{}{
+        "subject": "Contrato para Assinatura",
+        "message": "Por favor, revise e assine o documento anexo.",
+        "submissionType": "document",
+        "base64Document": pdfBase64,
+        "documentName": "contrato.pdf",
+        "fields": []map[string]interface{}{
+            {
+                "type": "signature",
+                "identifier": "assinatura_cliente",
+                "required": true,
+                "x": 70,
+                "y": 90,
+                "w": 20,
+                "h": 8,
+                "pageNumber": 1,
+            },
+            {
+                "type": "date",
+                "identifier": "data_assinatura",
+                "required": true,
+                "x": 70,
+                "y": 80,
+                "w": 20,
+                "h": 6,
+                "pageNumber": 1,
+            },
+        },
+        "recipients": []map[string]interface{}{
+            {
+                "email": "cliente@example.com",
+                "name": "João Silva",
+                "signatureType": "draw",
+                "role": "signer",
+            },
+        },
+        "advancedOptions": map[string]interface{}{
+            "autoReminders": true,
+            "reminderDelay": 2,
+            "reminderFrequency": 3,
+            "expirationDays": 30,
+            "expirationWarning": 5,
+        },
+    }
+    
+    jsonData, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://api.formsign.com.br/api/envelopes/send/base64", bytes.NewBuffer(jsonData))
+    req.Header.Set("Authorization", "Bearer <TOKEN>")
+    req.Header.Set("Content-Type", "application/json")
+    
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+    
+    body, _ := ioutil.ReadAll(resp.Body)
+    
+    var result map[string]interface{}
+    json.Unmarshal(body, &result)
+    
+    fmt.Printf("Envelope ID: %v\n", result["envelopeId"])
+}
 ```
+
+</CodeGroup>
 </RequestExample>
 
-### Parâmetros
+### Parâmetros (Body)
 
-<ParamField body="s3Key" type="string">
-Caminho do arquivo no S3 (obrigatório quando `submissionType=document`).
-</ParamField>
-<ParamField body="documentSettings" type="object" required>Configurações do documento PDF.</ParamField>
-<Expandable title="documentSettings">
-  <ParamField body="documentSettings.documentName" type="string" required>Nome do arquivo exibido.</ParamField>
-  <ParamField body="documentSettings.fileHash" type="string" required>Hash do arquivo para verificação.</ParamField>
-</Expandable>
-<ParamField body="fields" type="array" required>
-Campos do documento (ex.: assinatura, texto, data). Cada item segue `DadosFormulario`.
-</ParamField>
-<Expandable title="fields[] (DadosFormulario)">
-  <ParamField body="fields[].type" type="string" required>Tipo do campo (ex.: signature, text, date).</ParamField>
+<ParamField body="subject" type="string" required>Assunto do envelope.</ParamField>
+<ParamField body="message" type="string">Mensagem personalizada para os destinatários.</ParamField>
+<ParamField body="submissionType" type="string" required>Deve ser "document".</ParamField>
+<ParamField body="base64Document" type="string" required>Documento PDF codificado em base64.</ParamField>
+<ParamField body="documentName" type="string" required>Nome do arquivo (deve terminar com .pdf).</ParamField>
+<ParamField body="fields" type="array" required>Campos do documento.</ParamField>
+<ParamField body="recipients" type="array" required>Destinatários do envelope.</ParamField>
+<ParamField body="advancedOptions" type="object">Opções avançadas de entrega.</ParamField>
+
+<Expandable title="fields[] (Campos do Documento)">
+  <ParamField body="fields[].type" type="string" required>Tipo do campo: "signature", "text", "date", "checkbox", "radio".</ParamField>
   <ParamField body="fields[].identifier" type="string" required>Identificador único do campo.</ParamField>
-  <ParamField body="fields[].required" type="boolean" required>Se o preenchimento é obrigatório.</ParamField>
-  <ParamField body="fields[].x" type="number" required>Posição X (%) na página.</ParamField>
-  <ParamField body="fields[].y" type="number" required>Posição Y (%) na página.</ParamField>
-  <ParamField body="fields[].w" type="number" required>Largura (%).</ParamField>
-  <ParamField body="fields[].h" type="number" required>Altura (%).</ParamField>
-  <ParamField body="fields[].pageNumber" type="integer" required>Número da página.</ParamField>
+  <ParamField body="fields[].required" type="boolean" required>Se o campo é obrigatório.</ParamField>
+  <ParamField body="fields[].x" type="number" required>Posição X no documento (%).</ParamField>
+  <ParamField body="fields[].y" type="number" required>Posição Y no documento (%).</ParamField>
+  <ParamField body="fields[].w" type="number" required>Largura do campo (%).</ParamField>
+  <ParamField body="fields[].h" type="number" required>Altura do campo (%).</ParamField>
+  <ParamField body="fields[].pageNumber" type="integer" required>Número da página (começa em 1).</ParamField>
 </Expandable>
-<ParamField body="recipients" type="array" required>
-Lista de destinatários (email, name, signatureType, role).
-</ParamField>
+
+<Expandable title="recipients[] (Destinatários)">
+  <ParamField body="recipients[].email" type="string" required>Email do destinatário.</ParamField>
+  <ParamField body="recipients[].name" type="string" required>Nome do destinatário.</ParamField>
+  <ParamField body="recipients[].signatureType" type="string" required>Tipo de assinatura: "draw", "type", "upload".</ParamField>
+  <ParamField body="recipients[].role" type="string" required>Papel do destinatário: "signer", "cc", "viewer".</ParamField>
+</Expandable>
+
+<Expandable title="advancedOptions (Opções Avançadas)">
+  <ParamField body="advancedOptions.autoReminders" type="boolean">Enviar lembretes automáticos.</ParamField>
+  <ParamField body="advancedOptions.reminderDelay" type="integer">Atraso inicial para lembretes (dias).</ParamField>
+  <ParamField body="advancedOptions.reminderFrequency" type="integer">Frequência dos lembretes (dias).</ParamField>
+  <ParamField body="advancedOptions.expirationDays" type="integer">Dias para expiração do envelope.</ParamField>
+  <ParamField body="advancedOptions.expirationWarning" type="integer">Aviso antes da expiração (dias).</ParamField>
+</Expandable>
+
+### Validações
+
+- **PDF válido**: O documento deve ser um PDF válido (magic bytes: `%PDF`)
+- **Tamanho máximo**: 10MB
+- **Nome do arquivo**: Deve terminar com `.pdf`
+- **Base64**: Deve estar no formato correto
+- **Destinatários**: Pelo menos um destinatário é obrigatório
+- **Campos**: Pelo menos um campo é obrigatório
 
 ### Respostas
 
 <ResponseExample>
-```json 200
-{ "message": "Success", "envelopeId": "env_123" }
+```json 200 Sucesso
+{ 
+  "message": "Success",
+  "envelopeId": "env_abc123456789"
+}
 ```
 
-```json 400
-{ "error": "S3Key é obrigatório para enviar o email" }
+```json 400 Erro de Validação
+{ 
+  "error": "Documento não é um PDF válido" 
+}
 ```
 
-```json 401
-{ "error": "Unauthorized" }
+```json 400 Documento Muito Grande
+{ 
+  "error": "Documento excede o limite de 10MB (tamanho: 15.2MB)" 
+}
 ```
 
-```json 500
-{ "error": "Falha ao enviar envelope" }
+```json 400 Recipients Ausentes
+{ 
+  "error": "Pelo menos um recipient é obrigatório" 
+}
+```
+
+```json 401 Não Autorizado
+{ 
+  "error": "Unauthorized" 
+}
+```
+
+```json 500 Erro no Envio
+{ 
+  "error": "Falha ao enviar envelope" 
+}
 ```
 </ResponseExample>
-
-### Estrutura da resposta
-
-<ResponseField name="message" type="string" required>
-Mensagem de sucesso.
-</ResponseField>
-<ResponseField name="envelopeId" type="string" required>
-Identificador do envelope criado.
-</ResponseField>

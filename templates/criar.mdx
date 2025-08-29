@@ -1,90 +1,223 @@
 ---
-title: Criar Template
-description: Cria um novo template (form ou document) com campos personalizáveis e opções avançadas.
-openapi: 'POST /api/templates'
+title: Criar Template com Base64
+description: Cria um template enviando o documento PDF diretamente em formato base64.
+openapi: 'POST /api/templates/base64'
 ---
+
+Este endpoint permite criar templates enviando o PDF diretamente codificado em base64, eliminando a necessidade de fazer upload para S3 previamente.
 
 <RequestExample>
 <CodeGroup>
 
 ```bash cURL
-curl -X POST "https://api.formsign.com.br/api/templates" \
+curl -X POST "https://api.formsign.com.br/api/templates/base64" \
   -H "Authorization: Bearer <TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{
-    "templateName":"Contrato PDF",
-    "submissionType":"document",
-    "documentSettings":{"documentName":"contrato.pdf","fileHash":"<hash>"},
-    "s3Key":"uploads/templates/contrato.pdf",
-    "fields":[{"type":"signature","identifier":"assinatura","required":true,"x":70,"y":90,"w":20,"h":8,"pageNumber":1}]
+    "templateName": "Contrato de Prestação",
+    "templateDescription": "Template para contratos",
+    "submissionType": "document",
+    "base64Document": "JVBERi0xLjQKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFsgMyAwIFIgXQovQ291bnQgMQo+PgplbmRvYmoK...",
+    "documentName": "contrato.pdf",
+    "fields": [
+      {
+        "type": "signature",
+        "identifier": "assinatura_cliente",
+        "required": true,
+        "x": 70,
+        "y": 90,
+        "w": 20,
+        "h": 8,
+        "pageNumber": 1
+      }
+    ]
   }'
 ```
 
 ```javascript JavaScript
-await fetch('https://api.formsign.com.br/api/templates',{
-  method:'POST', headers:{'Authorization':'Bearer <TOKEN>','Content-Type':'application/json'},
+const response = await fetch('https://api.formsign.com.br/api/templates/base64', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer <TOKEN>',
+    'Content-Type': 'application/json'
+  },
   body: JSON.stringify({
-    templateName:'Contrato PDF', submissionType:'document',
-    documentSettings:{documentName:'contrato.pdf', fileHash:'<hash>'},
-    s3Key:'uploads/templates/contrato.pdf',
-    fields:[{type:'signature', identifier:'assinatura', required:true, x:70, y:90, w:20, h:8, pageNumber:1}]
+    templateName: 'Contrato de Prestação',
+    templateDescription: 'Template para contratos',
+    submissionType: 'document',
+    base64Document: 'JVBERi0xLjQKMSAwIG9iago...',
+    documentName: 'contrato.pdf',
+    fields: [
+      {
+        type: 'signature',
+        identifier: 'assinatura_cliente',
+        required: true,
+        x: 70,
+        y: 90,
+        w: 20,
+        h: 8,
+        pageNumber: 1
+      }
+    ]
   })
 });
 ```
 
 ```python Python
 import requests
-payload={
-  "templateName":"Contrato PDF","submissionType":"document",
-  "documentSettings":{"documentName":"contrato.pdf","fileHash":"<hash>"},
-  "s3Key":"uploads/templates/contrato.pdf",
-  "fields":[{"type":"signature","identifier":"assinatura","required":True,"x":70,"y":90,"w":20,"h":8,"pageNumber":1}]
+import base64
+
+# Ler arquivo PDF e converter para base64
+with open('contrato.pdf', 'rb') as f:
+    pdf_base64 = base64.b64encode(f.read()).decode('utf-8')
+
+payload = {
+    "templateName": "Contrato de Prestação",
+    "templateDescription": "Template para contratos",
+    "submissionType": "document", 
+    "base64Document": pdf_base64,
+    "documentName": "contrato.pdf",
+    "fields": [
+        {
+            "type": "signature",
+            "identifier": "assinatura_cliente", 
+            "required": True,
+            "x": 70,
+            "y": 90,
+            "w": 20,
+            "h": 8,
+            "pageNumber": 1
+        }
+    ]
 }
-r=requests.post('https://api.formsign.com.br/api/templates',json=payload,headers={'Authorization':'Bearer <TOKEN>'})
-print(r.json())
+
+response = requests.post(
+    'https://api.formsign.com.br/api/templates/base64',
+    json=payload,
+    headers={'Authorization': 'Bearer <TOKEN>'}
+)
+print(response.json())
 ```
 
 ```go Go
-// POST JSON para /api/templates com Authorization: Bearer <TOKEN>
-```
+package main
 
-```java Java
-// POST JSON para /api/templates com Authorization: Bearer <TOKEN>
+import (
+    "bytes"
+    "encoding/base64"
+    "encoding/json"
+    "fmt"
+    "io/ioutil"
+    "net/http"
+)
+
+func main() {
+    // Ler arquivo PDF
+    pdfBytes, err := ioutil.ReadFile("contrato.pdf")
+    if err != nil {
+        panic(err)
+    }
+    
+    // Converter para base64
+    pdfBase64 := base64.StdEncoding.EncodeToString(pdfBytes)
+    
+    payload := map[string]interface{}{
+        "templateName": "Contrato de Prestação",
+        "templateDescription": "Template para contratos",
+        "submissionType": "document",
+        "base64Document": pdfBase64,
+        "documentName": "contrato.pdf",
+        "fields": []map[string]interface{}{
+            {
+                "type": "signature",
+                "identifier": "assinatura_cliente",
+                "required": true,
+                "x": 70,
+                "y": 90,
+                "w": 20,
+                "h": 8,
+                "pageNumber": 1,
+            },
+        },
+    }
+    
+    jsonData, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://api.formsign.com.br/api/templates/base64", bytes.NewBuffer(jsonData))
+    req.Header.Set("Authorization", "Bearer <TOKEN>")
+    req.Header.Set("Content-Type", "application/json")
+    
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+    
+    body, _ := ioutil.ReadAll(resp.Body)
+    fmt.Println(string(body))
+}
 ```
 
 </CodeGroup>
 </RequestExample>
 
 ### Parâmetros (Body)
-<ParamField body="documentSettings" type="object" required>Configurações do documento PDF.</ParamField>
-<Expandable title="documentSettings">
-  <ParamField body="documentSettings.documentName" type="string" required>Nome do arquivo exibido.</ParamField>
-  <ParamField body="documentSettings.fileHash" type="string" required>Hash do arquivo para verificação.</ParamField>
-  </Expandable>
-<ParamField body="s3Key" type="string" required>Chave do arquivo no S3.</ParamField>
-<ParamField body="fields" type="array" required>Campos a serem preenchidos/assinados.</ParamField>
-<Expandable title="fields[] (DadosFormulario)">
-  <ParamField body="fields[].type" type="string" required>Tipo do campo.</ParamField>
-  <ParamField body="fields[].identifier" type="string" required>Identificador único.</ParamField>
-  <ParamField body="fields[].required" type="boolean" required>Obrigatoriedade.</ParamField>
-  <ParamField body="fields[].x" type="number" required>Posição X.</ParamField>
-  <ParamField body="fields[].y" type="number" required>Posição Y.</ParamField>
-  <ParamField body="fields[].w" type="number" required>Largura.</ParamField>
-  <ParamField body="fields[].h" type="number" required>Altura.</ParamField>
-  <ParamField body="fields[].pageNumber" type="integer" required>Número da página.</ParamField>
+
+<ParamField body="templateName" type="string" required>Nome do template.</ParamField>
+<ParamField body="templateDescription" type="string">Descrição opcional do template.</ParamField>
+<ParamField body="submissionType" type="string" required>Deve ser "document".</ParamField>
+<ParamField body="base64Document" type="string" required>Documento PDF codificado em base64.</ParamField>
+<ParamField body="documentName" type="string" required>Nome do arquivo (deve terminar com .pdf).</ParamField>
+<ParamField body="fields" type="array" required>Campos do documento.</ParamField>
+
+<Expandable title="fields[] (Campos do Documento)">
+  <ParamField body="fields[].type" type="string" required>Tipo do campo: "signature", "text", "date", "checkbox", "radio".</ParamField>
+  <ParamField body="fields[].identifier" type="string" required>Identificador único do campo.</ParamField>
+  <ParamField body="fields[].required" type="boolean" required>Se o campo é obrigatório.</ParamField>
+  <ParamField body="fields[].x" type="number" required>Posição X no documento (%).</ParamField>
+  <ParamField body="fields[].y" type="number" required>Posição Y no documento (%).</ParamField>
+  <ParamField body="fields[].w" type="number" required>Largura do campo (%).</ParamField>
+  <ParamField body="fields[].h" type="number" required>Altura do campo (%).</ParamField>
+  <ParamField body="fields[].pageNumber" type="integer" required>Número da página (começa em 1).</ParamField>
 </Expandable>
 
+### Validações
+
+- **PDF válido**: O documento deve ser um PDF válido (magic bytes: `%PDF`)
+- **Tamanho máximo**: 10MB
+- **Nome do arquivo**: Deve terminar com `.pdf`
+- **Base64**: Deve estar no formato correto
+
 ### Respostas
+
 <ResponseExample>
-```json 200
-{ "mensagem":"Dados salvos com sucesso", "dados": { "templateId":"tpl_123","status":"created" } }
+```json 200 Sucesso
+{ 
+  "mensagem": "Dados salvos com sucesso", 
+  "dados": { 
+    "templateId": "tpl_abc123",
+    "templateName": "Contrato de Prestação",
+    "status": "created",
+    "s3Key": "documents/user@example.com/hash123_contrato.pdf"
+  } 
+}
 ```
 
-```json 400
-{ "error": "S3Key é obrigatório para submissionType 'document'" }
+```json 400 Erro de Validação
+{ 
+  "error": "Documento não é um PDF válido" 
+}
 ```
 
-```json 401
-{ "error": "Unauthorized" }
+```json 400 Documento Muito Grande
+{ 
+  "error": "Documento excede o limite de 10MB (tamanho: 15.2MB)" 
+}
+```
+
+```json 401 Não Autorizado
+{ 
+  "error": "Unauthorized" 
+}
 ```
 </ResponseExample>
