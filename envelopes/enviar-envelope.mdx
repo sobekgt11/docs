@@ -7,7 +7,6 @@ openapi: 'POST /api/envelopes/send'
 Este endpoint permite criar e enviar envelopes usando documentos já armazenados no S3 ou templates existentes. O envelope é enviado automaticamente para os destinatários após a criação.
 
 <RequestExample>
-<CodeGroup>
 
 ```bash cURL
 curl -X POST "https://api.formsign.com.br/api/envelopes/send" \
@@ -107,6 +106,12 @@ curl -X POST "https://api.formsign.com.br/api/envelopes/send" \
   }'
 ```
 
+</RequestExample>
+
+## Exemplos Adicionais
+
+<CodeGroup>
+
 ```javascript JavaScript
 const response = await fetch('https://api.formsign.com.br/api/envelopes/send', {
   method: 'POST',
@@ -148,29 +153,6 @@ const response = await fetch('https://api.formsign.com.br/api/envelopes/send', {
         h: 12,
         pageNumber: 2,
         recipientRole: 'service_provider'
-      },
-      {
-        type: 'date',
-        identifier: 'data_inicio_servicos',
-        name: 'Data de Início',
-        required: true,
-        x: 30,
-        y: 35,
-        w: 20,
-        h: 6,
-        pageNumber: 1
-      },
-      {
-        type: 'text',
-        identifier: 'valor_total_servicos',
-        name: 'Valor Total dos Serviços',
-        required: true,
-        x: 60,
-        y: 50,
-        w: 25,
-        h: 6,
-        pageNumber: 1,
-        placeholder: 'R$ 0,00'
       }
     ],
     recipients: [
@@ -181,14 +163,6 @@ const response = await fetch('https://api.formsign.com.br/api/envelopes/send', {
         role: 'signer',
         cpf: '12.345.678/0001-90',
         order: 1
-      },
-      {
-        email: 'consultoria@prestador.com.br',
-        name: 'Consultoria Especializada ME',
-        signatureType: 'type',
-        role: 'signer',
-        cpf: '98.765.432/0001-10',
-        order: 2
       }
     ],
     advancedOptions: {
@@ -210,7 +184,7 @@ import requests
 
 payload = {
     "subject": "NDA - Acordo de Confidencialidade Bilateral",
-    "message": "Prezados, segue o Acordo de Confidencialidade para assinatura de ambas as partes. Prazo para assinatura: 5 dias úteis.",
+    "message": "Prezados, segue o Acordo de Confidencialidade para assinatura de ambas as partes.",
     "submissionType": "document",
     "s3Key": "documents/usr_abc123/nda_acordo_confidencialidade.pdf",
     "documentSettings": {
@@ -230,41 +204,6 @@ payload = {
             "h": 8,
             "pageNumber": 2,
             "recipientRole": "company_a"
-        },
-        {
-            "type": "signature",
-            "identifier": "assinatura_empresa_b", 
-            "name": "Assinatura Empresa B",
-            "required": True,
-            "x": 65,
-            "y": 85,
-            "w": 20,
-            "h": 8,
-            "pageNumber": 2,
-            "recipientRole": "company_b"
-        },
-        {
-            "type": "text",
-            "identifier": "nome_projeto_confidencial",
-            "name": "Nome do Projeto",
-            "required": True,
-            "x": 40,
-            "y": 25,
-            "w": 35,
-            "h": 6,
-            "pageNumber": 1,
-            "placeholder": "Ex: Projeto Alpha 2024"
-        },
-        {
-            "type": "date",
-            "identifier": "data_validade_nda",
-            "name": "Data de Validade",
-            "required": True,
-            "x": 60,
-            "y": 45,
-            "w": 25,
-            "h": 6,
-            "pageNumber": 1
         }
     ],
     "recipients": [
@@ -275,21 +214,6 @@ payload = {
             "role": "signer",
             "cpf": "11.222.333/0001-44",
             "order": 1
-        },
-        {
-            "email": "contratos@empresab.com.br",
-            "name": "Empresa B - Contratos", 
-            "signatureType": "draw",
-            "role": "signer",
-            "cpf": "55.666.777/0001-88",
-            "order": 2
-        }
-    ],
-    "observers": [
-        {
-            "email": "auditoria@empresaa.com.br",
-            "name": "Auditoria Interna - Empresa A",
-            "role": "observer"
         }
     ],
     "advancedOptions": {
@@ -309,144 +233,9 @@ response = requests.post(
 
 result = response.json()
 print(f"Envelope enviado: {result['envelopeId']}")
-print(f"Status: Enviado para {len(payload['recipients'])} destinatários")
-```
-
-```go Go
-package main
-
-import (
-    "bytes"
-    "encoding/json"
-    "fmt"
-    "io"
-    "net/http"
-)
-
-func main() {
-    payload := map[string]interface{}{
-        "subject": "Termo de Adesão - Plano Premium",
-        "message": "Prezado cliente, segue o Termo de Adesão ao Plano Premium. Após assinatura, os benefícios serão ativados em até 24h.",
-        "submissionType": "document",
-        "s3Key": "documents/usr_abc123/termo_adesao_premium.pdf",
-        "documentSettings": map[string]interface{}{
-            "documentName": "termo_adesao_plano_premium.pdf",
-            "documentSizeMB": "0.4",
-            "fileHash": "sha256:z9x8c7v6b5n4m3l2k1j0...",
-        },
-        "fields": []map[string]interface{}{
-            {
-                "type": "signature",
-                "identifier": "assinatura_cliente",
-                "name": "Assinatura do Cliente",
-                "required": true,
-                "x": 45,
-                "y": 80,
-                "w": 35,
-                "h": 10,
-                "pageNumber": 2,
-                "recipientRole": "customer",
-            },
-            {
-                "type": "date",
-                "identifier": "data_adesao",
-                "name": "Data de Adesão",
-                "required": true,
-                "x": 65,
-                "y": 70,
-                "w": 20,
-                "h": 6,
-                "pageNumber": 2,
-            },
-            {
-                "type": "radio",
-                "identifier": "plano_escolhido",
-                "name": "Plano Escolhido",
-                "required": true,
-                "x": 20,
-                "y": 40,
-                "w": 60,
-                "h": 15,
-                "pageNumber": 1,
-                "options": []map[string]interface{}{
-                    {
-                        "value": "premium_mensal",
-                        "x": 20,
-                        "y": 42,
-                        "w": 25,
-                        "h": 4,
-                    },
-                    {
-                        "value": "premium_anual",
-                        "x": 20,
-                        "y": 47,
-                        "w": 25,
-                        "h": 4,
-                    },
-                    {
-                        "value": "premium_vitalicio",
-                        "x": 20,
-                        "y": 52,
-                        "w": 25,
-                        "h": 4,
-                    },
-                },
-            },
-        },
-        "recipients": []map[string]interface{}{
-            {
-                "email": "cliente.vip@exemplo.com.br",
-                "name": "Carlos Mendes Cliente VIP",
-                "signatureType": "draw",
-                "role": "signer",
-                "cpf": "456.789.123-45",
-                "order": 1,
-            },
-        },
-        "observers": []map[string]interface{}{
-            {
-                "email": "vendas@empresa.com.br",
-                "name": "Equipe de Vendas",
-                "role": "observer",
-            },
-            {
-                "email": "financeiro@empresa.com.br", 
-                "name": "Departamento Financeiro",
-                "role": "observer",
-            },
-        },
-        "advancedOptions": map[string]interface{}{
-            "autoReminders": true,
-            "reminderDelay": 1,
-            "reminderFrequency": 2,
-            "expirationDays": 10,
-            "expirationWarning": 2,
-        },
-    }
-    
-    jsonData, _ := json.Marshal(payload)
-    req, _ := http.NewRequest("POST", "https://api.formsign.com.br/api/envelopes/send", bytes.NewBuffer(jsonData))
-    req.Header.Set("Authorization", "Bearer <TOKEN>")
-    req.Header.Set("Content-Type", "application/json")
-    
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    if err != nil {
-        panic(err)
-    }
-    defer resp.Body.Close()
-    
-    body, _ := io.ReadAll(resp.Body)
-    
-    var result map[string]interface{}
-    json.Unmarshal(body, &result)
-    
-    fmt.Printf("Envelope enviado: %v\n", result["envelopeId"])
-}
 ```
 
 </CodeGroup>
-</RequestExample>
 
 ### Parâmetros (Body)
 
