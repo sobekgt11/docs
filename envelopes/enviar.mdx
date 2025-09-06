@@ -7,7 +7,6 @@ openapi: 'POST /api/envelopes/send/base64'
 Este endpoint permite criar e enviar envelopes enviando o PDF diretamente codificado em base64, eliminando a necessidade de fazer upload para S3 previamente. O envelope é enviado automaticamente para os destinatários após a criação.
 
 <RequestExample>
-<CodeGroup>
 
 ```bash cURL
 curl -X POST "https://api.formsign.com.br/api/envelopes/send/base64" \
@@ -58,6 +57,9 @@ curl -X POST "https://api.formsign.com.br/api/envelopes/send/base64" \
     }
   }'
 ```
+</RequestExample>
+
+<CodeGroup>
 
 ```javascript JavaScript
 const response = await fetch('https://api.formsign.com.br/api/envelopes/send/base64', {
@@ -268,7 +270,6 @@ func main() {
 ```
 
 </CodeGroup>
-</RequestExample>
 
 ### Parâmetros (Body)
 
