@@ -1,0 +1,175 @@
+---
+title: Reenviar Envelope
+description: Reenvia um envelope existente para os destinatários.
+openapi: 'POST /api/envelopes/resend'
+---
+
+Este endpoint permite reenviar um envelope existente, gerando novos emails de notificação para os destinatários.
+
+<RequestExample>
+<CodeGroup>
+
+```bash cURL
+curl -X POST "https://api.formsign.com.br/api/envelopes/resend" \
+  -H "Authorization: Bearer <TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "envelopeId": "env_abc123456789"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.formsign.com.br/api/envelopes/resend', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer <TOKEN>',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    envelopeId: 'env_abc123456789'
+  })
+});
+
+const result = await response.json();
+console.log('Envelope reenviado:', result.envelopeId);
+```
+
+```python Python
+import requests
+
+payload = {
+    "envelopeId": "env_abc123456789"
+}
+
+response = requests.post(
+    'https://api.formsign.com.br/api/envelopes/resend',
+    json=payload,
+    headers={'Authorization': 'Bearer <TOKEN>'}
+)
+
+result = response.json()
+print(f"Envelope reenviado: {result['envelopeId']}")
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]string{
+        "envelopeId": "env_abc123456789",
+    }
+    
+    jsonData, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://api.formsign.com.br/api/envelopes/resend", bytes.NewBuffer(jsonData))
+    req.Header.Set("Authorization", "Bearer <TOKEN>")
+    req.Header.Set("Content-Type", "application/json")
+    
+    client := &http.Client{}
+    resp, _ := client.Do(req)
+    defer resp.Body.Close()
+    
+    var result map[string]interface{}
+    json.NewDecoder(resp.Body).Decode(&result)
+    
+    fmt.Printf("Envelope reenviado: %v\n", result["envelopeId"])
+}
+```
+
+</CodeGroup>
+</RequestExample>
+
+### Parâmetros (Body)
+
+<ParamField body="envelopeId" type="string" required>ID do envelope a ser reenviado.</ParamField>
+
+### Como Funciona
+
+1. **Validação**: Verifica se o envelope existe e pertence ao usuário
+2. **Status Check**: Confirma se o envelope pode ser reenviado (deve estar com status `sent`)
+3. **Reenvio**: Gera novos emails para todos os destinatários pendentes
+4. **Log**: Registra a ação no histórico do envelope
+
+### Quando Usar
+
+- Destinatário não recebeu o email original
+- Email foi para spam/lixo eletrônico
+- Necessidade de lembrar destinatários pendentes
+- Após alteração de dados de contato
+
+### Regras de Negócio
+
+- Envelope deve ter status `sent`
+- Envelope não pode estar `completed`, `voided` ou `expired`
+- Apenas destinatários pendentes recebem novo email
+- Destinatários que já assinaram não são notificados novamente
+
+### Respostas
+
+<ResponseExample>
+```json 200 Sucesso
+{
+  "message": "Success",
+  "envelopeId": "env_abc123456789"
+}
+```
+
+```json 400 ID Ausente
+{
+  "error": "envelopeId é obrigatório"
+}
+```
+
+```json 404 Envelope Não Encontrado
+{
+  "error": "Envelope não encontrado"
+}
+```
+
+```json 400 Status Inválido
+{
+  "error": "Envelope não pode ser reenviado. Status atual: completed"
+}
+```
+
+```json 401 Não Autorizado
+{
+  "error": "Unauthorized"
+}
+```
+
+```json 500 Erro no Reenvio
+{
+  "error": "Falha ao reenviar envelope: [detalhes do erro]"
+}
+```
+</ResponseExample>
+
+### Status Válidos para Reenvio
+
+| Status | Pode Reenviar? | Motivo |
+|--------|----------------|---------|
+| `sent` | ✅ | Status normal para reenvio |
+| `draft` | ❌ | Envelope ainda não foi enviado |
+| `completed` | ❌ | Todas assinaturas já coletadas |
+| `voided` | ❌ | Envelope foi cancelado |
+| `expired` | ❌ | Envelope expirou |
+
+### Campos da Response
+
+<ResponseField name="message" type="string">Mensagem de confirmação ("Success").</ResponseField>
+<ResponseField name="envelopeId" type="string">ID do envelope reenviado.</ResponseField>
+
+<Tip>
+**Limite de Reenvios**: Não há limite técnico, mas use com moderação para evitar spam. Considere usar lembretes automáticos via `advancedOptions.autoReminders`.
+</Tip>
+
+<Note>
+O reenvio gera novos tokens de acesso, invalidando links anteriores de destinatários pendentes. Destinatários que já assinaram mantêm seus dados.
+</Note>

@@ -1,0 +1,226 @@
+---
+title: Histórico do Envelope
+description: Obtém o histórico completo de ações realizadas em um envelope.
+openapi: 'GET /api/envelopes/{envelopeId}/history'
+---
+
+Este endpoint retorna o histórico completo de todas as ações realizadas em um envelope específico, incluindo criação, envio, visualizações, assinaturas e cancelamentos.
+
+<RequestExample>
+<CodeGroup>
+
+```bash cURL
+curl -X GET "https://api.formsign.com.br/api/envelopes/env_abc123456789/history" \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+```javascript JavaScript
+const envelopeId = 'env_abc123456789';
+const response = await fetch(`https://api.formsign.com.br/api/envelopes/${envelopeId}/history`, {
+  headers: {
+    'Authorization': 'Bearer <TOKEN>'
+  }
+});
+
+const history = await response.json();
+console.log(`Histórico com ${history.length} ações`);
+history.forEach(action => {
+  console.log(`${action.creationDate}: ${action.action} por ${action.executorName}`);
+});
+```
+
+```python Python
+import requests
+
+envelope_id = 'env_abc123456789'
+response = requests.get(
+    f'https://api.formsign.com.br/api/envelopes/{envelope_id}/history',
+    headers={'Authorization': 'Bearer <TOKEN>'}
+)
+
+history = response.json()
+print(f"Histórico com {len(history)} ações")
+for action in history:
+    print(f"{action['creationDate']}: {action['action']} por {action['executorName']}")
+```
+
+```go Go
+package main
+
+import (
+    "encoding/json"
+    "fmt"
+    "net/http"
+)
+
+func main() {
+    envelopeID := "env_abc123456789"
+    req, _ := http.NewRequest("GET", fmt.Sprintf("https://api.formsign.com.br/api/envelopes/%s/history", envelopeID), nil)
+    req.Header.Set("Authorization", "Bearer <TOKEN>")
+    
+    client := &http.Client{}
+    resp, _ := client.Do(req)
+    defer resp.Body.Close()
+    
+    var history []map[string]interface{}
+    json.NewDecoder(resp.Body).Decode(&history)
+    
+    fmt.Printf("Histórico com %d ações\n", len(history))
+    for _, action := range history {
+        fmt.Printf("%v: %v por %v\n", action["creationDate"], action["action"], action["executorName"])
+    }
+}
+```
+
+</CodeGroup>
+</RequestExample>
+
+### Parâmetros (Path)
+
+<ParamField path="envelopeId" type="string" required>ID único do envelope.</ParamField>
+
+### Tipos de Ações no Histórico
+
+| Ação | Descrição | Executor |
+|------|-----------|----------|
+| `envelope_created` | Envelope foi criado | Remetente |
+| `envelope_sent` | Envelope foi enviado | Sistema |
+| `envelope_opened` | Destinatário abriu o envelope | Destinatário |
+| `envelope_viewed` | Destinatário visualizou documento | Destinatário |
+| `field_filled` | Campo foi preenchido | Destinatário |
+| `envelope_signed` | Envelope foi assinado | Destinatário |
+| `envelope_completed` | Todas assinaturas coletadas | Sistema |
+| `envelope_resent` | Envelope foi reenviado | Remetente |
+| `envelope_voided` | Envelope foi cancelado | Remetente |
+| `envelope_expired` | Envelope expirou | Sistema |
+| `reminder_sent` | Lembrete enviado | Sistema |
+
+### Respostas
+
+<ResponseExample>
+```json 200 Sucesso
+[
+  {
+    "envelopeId": "env_abc123456789",
+    "action": "envelope_created",
+    "executorId": "user_123",
+    "executorName": "Maria Santos",
+    "executorIp": "192.168.1.100",
+    "creationDate": "2024-08-15T10:30:00Z"
+  },
+  {
+    "envelopeId": "env_abc123456789",
+    "action": "envelope_sent",
+    "executorId": "system",
+    "executorName": "Sistema",
+    "executorIp": null,
+    "creationDate": "2024-08-15T10:35:00Z"
+  },
+  {
+    "envelopeId": "env_abc123456789",
+    "action": "envelope_opened",
+    "executorId": "rec_789",
+    "executorName": "João Silva",
+    "executorIp": "203.45.67.89",
+    "creationDate": "2024-08-15T14:22:00Z"
+  },
+  {
+    "envelopeId": "env_abc123456789",
+    "action": "envelope_viewed",
+    "executorId": "rec_789",
+    "executorName": "João Silva",
+    "executorIp": "203.45.67.89",
+    "creationDate": "2024-08-15T14:23:00Z"
+  },
+  {
+    "envelopeId": "env_abc123456789",
+    "action": "field_filled",
+    "executorId": "rec_789",
+    "executorName": "João Silva",
+    "executorIp": "203.45.67.89",
+    "creationDate": "2024-08-15T14:25:00Z"
+  },
+  {
+    "envelopeId": "env_abc123456789",
+    "action": "envelope_signed",
+    "executorId": "rec_789",
+    "executorName": "João Silva",
+    "executorIp": "203.45.67.89",
+    "creationDate": "2024-08-15T14:27:00Z"
+  },
+  {
+    "envelopeId": "env_abc123456789",
+    "action": "envelope_completed",
+    "executorId": "system",
+    "executorName": "Sistema",
+    "executorIp": null,
+    "creationDate": "2024-08-15T14:28:00Z"
+  }
+]
+```
+
+```json 404 Envelope Não Encontrado
+{
+  "error": "Envelope não encontrado"
+}
+```
+
+```json 401 Não Autorizado
+{
+  "error": "Unauthorized"
+}
+```
+
+```json 400 ID Inválido
+{
+  "error": "ID do envelope não fornecido"
+}
+```
+
+```json 500 Erro Interno
+{
+  "error": "Falha ao buscar histórico do envelope"
+}
+```
+</ResponseExample>
+
+### Campos da Response
+
+<ResponseField name="[]" type="array">Lista de ações ordenada cronologicamente (mais antiga primeiro).</ResponseField>
+
+<Expandable title="Estrutura de Cada Ação">
+  <ResponseField name="envelopeId" type="string">ID do envelope.</ResponseField>
+  <ResponseField name="action" type="string">Tipo da ação realizada.</ResponseField>
+  <ResponseField name="executorId" type="string">ID de quem executou a ação.</ResponseField>
+  <ResponseField name="executorName" type="string">Nome de quem executou a ação.</ResponseField>
+  <ResponseField name="executorIp" type="string">Endereço IP de origem (se aplicável).</ResponseField>
+  <ResponseField name="creationDate" type="string">Timestamp da ação (ISO 8601).</ResponseField>
+</Expandable>
+
+### Casos de Uso
+
+1. **Auditoria**: Rastrear quem fez o quê e quando
+2. **Compliance**: Evidências para processos legais
+3. **Troubleshooting**: Identificar onde o processo parou
+4. **Análise**: Entender o comportamento dos destinatários
+5. **Notificações**: Implementar alertas baseados em ações
+
+### Executores Especiais
+
+| Executor | Tipo | Descrição |
+|----------|------|-----------|
+| `user_*` | Usuário | Proprietário do envelope |
+| `rec_*` | Destinatário | Quem assina/visualiza |
+| `system` | Sistema | Ações automáticas |
+
+### Ordenação
+
+As ações são sempre retornadas em ordem cronológica crescente (mais antiga primeiro), facilitando o acompanhamento sequencial do processo.
+
+<Note>
+**Retenção de Dados**: O histórico é mantido indefinidamente para fins de compliance e auditoria. IPs são coletados apenas para ações de destinatários.
+</Note>
+
+<Tip>
+**Análise de Padrões**: Use o histórico para identificar padrões como tempo médio entre envio e assinatura, ou destinatários que frequentemente demoram para assinar.
+</Tip>

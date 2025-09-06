@@ -1,0 +1,170 @@
+---
+title: Listar Envelopes
+description: Lista envelopes com paginação e filtros.
+openapi: 'GET /api/envelopes'
+---
+
+Este endpoint retorna uma lista paginada de envelopes do usuário, com opções de filtro por status, texto e data.
+
+<RequestExample>
+<CodeGroup>
+
+```bash cURL
+curl -X GET "https://api.formsign.com.br/api/envelopes?page=1&pageSize=10&status=sent&searchText=contrato" \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.formsign.com.br/api/envelopes?page=1&pageSize=10&status=sent', {
+  headers: {
+    'Authorization': 'Bearer <TOKEN>'
+  }
+});
+
+const data = await response.json();
+console.log(`Total: ${data.totalRecords} envelopes`);
+console.log(`Página ${data.page} de ${data.totalPages}`);
+data.envelopes.forEach(env => {
+  console.log(`${env.envelopeId}: ${env.subject} - ${env.status}`);
+});
+```
+
+```python Python
+import requests
+
+params = {
+    'page': 1,
+    'pageSize': 10,
+    'status': 'sent',
+    'searchText': 'contrato'
+}
+
+response = requests.get(
+    'https://api.formsign.com.br/api/envelopes',
+    params=params,
+    headers={'Authorization': 'Bearer <TOKEN>'}
+)
+
+data = response.json()
+print(f"Total: {data['totalRecords']} envelopes")
+for envelope in data['envelopes']:
+    print(f"{envelope['envelopeId']}: {envelope['subject']} - {envelope['status']}")
+```
+
+</CodeGroup>
+</RequestExample>
+
+### Parâmetros (Query)
+
+<ParamField query="page" type="integer" default="1">Número da página (começa em 1).</ParamField>
+<ParamField query="pageSize" type="integer" default="10">Quantidade de itens por página (máximo 50).</ParamField>
+<ParamField query="status" type="string">Filtrar por status do envelope.</ParamField>
+<ParamField query="searchText" type="string">Buscar por texto no assunto ou ID do envelope.</ParamField>
+<ParamField query="lastUpdateStartDate" type="string">Filtrar por data de início da última atualização (formato YYYY-MM-DD).</ParamField>
+<ParamField query="lastUpdateEndDate" type="string">Filtrar por data de fim da última atualização (formato YYYY-MM-DD).</ParamField>
+
+### Status Disponíveis
+
+| Status | Descrição |
+|--------|-----------|
+| `draft` | Rascunho (não enviado) |
+| `sent` | Enviado para assinatura |
+| `completed` | Todas as assinaturas completas |
+| `voided` | Cancelado |
+| `expired` | Expirado sem completar |
+
+### Respostas
+
+<ResponseExample>
+```json 200 Sucesso
+{
+  "totalPages": 5,
+  "page": 1,
+  "pageSize": 10,
+  "totalRecords": 47,
+  "envelopes": [
+    {
+      "envelopeId": "env_abc123456789",
+      "subject": "Contrato de Prestação de Serviços",
+      "status": "sent",
+      "submissionType": "document",
+      "creationDate": "2024-08-15T10:30:00Z",
+      "lastUpdateDate": "2024-08-15T10:35:00Z",
+      "sentDate": "2024-08-15T10:35:00Z",
+      "userId": "user_123",
+      "templateId": "tpl_456",
+      "recipients": [
+        {
+          "recipientId": "rec_789",
+          "email": "cliente@example.com",
+          "name": "João Silva",
+          "status": "sent",
+          "role": "signer",
+          "signatureType": "draw"
+        }
+      ],
+      "sender": {
+        "email": "empresa@example.com",
+        "userName": "Maria Santos"
+      },
+      "advancedOptions": {
+        "autoReminders": true,
+        "reminderDelay": 2,
+        "reminderFrequency": 3,
+        "expirationDays": 30,
+        "expirationWarning": 5
+      },
+      "validationKey": "val_xyz789",
+      "s3Key": "documents/user_123/env_abc123456789.pdf",
+      "documentSignedS3Key": null,
+      "completedDate": null,
+      "expirationDate": "2024-09-14T10:35:00Z"
+    }
+  ]
+}
+```
+
+```json 400 Parâmetros Inválidos
+{
+  "error": "pageSize deve ser entre 1 e 50"
+}
+```
+
+```json 401 Não Autorizado
+{
+  "error": "Unauthorized"
+}
+```
+</ResponseExample>
+
+### Campos da Response
+
+<ResponseField name="totalPages" type="integer">Total de páginas disponíveis.</ResponseField>
+<ResponseField name="page" type="integer">Página atual.</ResponseField>
+<ResponseField name="pageSize" type="integer">Itens por página.</ResponseField>
+<ResponseField name="totalRecords" type="integer">Total de registros encontrados.</ResponseField>
+<ResponseField name="envelopes" type="array">Lista de envelopes.</ResponseField>
+
+<Expandable title="envelopes[] (Estrutura do Envelope)">
+  <ResponseField name="envelopes[].envelopeId" type="string">ID único do envelope.</ResponseField>
+  <ResponseField name="envelopes[].subject" type="string">Assunto do envelope.</ResponseField>
+  <ResponseField name="envelopes[].status" type="string">Status atual: draft, sent, completed, voided, expired.</ResponseField>
+  <ResponseField name="envelopes[].submissionType" type="string">Tipo de submissão: document, form.</ResponseField>
+  <ResponseField name="envelopes[].creationDate" type="string">Data de criação (ISO 8601).</ResponseField>
+  <ResponseField name="envelopes[].lastUpdateDate" type="string">Última atualização (ISO 8601).</ResponseField>
+  <ResponseField name="envelopes[].sentDate" type="string">Data de envio (ISO 8601).</ResponseField>
+  <ResponseField name="envelopes[].userId" type="string">ID do usuário proprietário.</ResponseField>
+  <ResponseField name="envelopes[].templateId" type="string">ID do template usado (se aplicável).</ResponseField>
+  <ResponseField name="envelopes[].recipients" type="array">Lista de destinatários.</ResponseField>
+  <ResponseField name="envelopes[].sender" type="object">Dados do remetente.</ResponseField>
+  <ResponseField name="envelopes[].advancedOptions" type="object">Opções avançadas configuradas.</ResponseField>
+  <ResponseField name="envelopes[].validationKey" type="string">Chave de validação única.</ResponseField>
+  <ResponseField name="envelopes[].s3Key" type="string">Chave S3 do documento original.</ResponseField>
+  <ResponseField name="envelopes[].documentSignedS3Key" type="string">Chave S3 do documento assinado (se completo).</ResponseField>
+  <ResponseField name="envelopes[].completedDate" type="string">Data de conclusão (se completo).</ResponseField>
+  <ResponseField name="envelopes[].expirationDate" type="string">Data de expiração.</ResponseField>
+</Expandable>
+
+<Note>
+**Performance**: Para melhor performance, use `pageSize` entre 10-25. Evite valores muito altos que podem impactar o tempo de resposta.
+</Note>

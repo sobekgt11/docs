@@ -1,29 +1,66 @@
 ---
 title: Envelopes — Referência
-description: API para enviar envelopes com documento PDF em formato base64.
+description: API completa para gerenciar envelopes de assinatura digital.
 icon: envelope
 ---
 
-A API de envelopes permite criar e enviar documentos para assinatura enviando o PDF diretamente no formato base64, ideal para integrações server-to-server.
+A API de envelopes permite criar, enviar, gerenciar e acompanhar documentos para assinatura digital, oferecendo funcionalidades completas para integrações server-to-server.
 
-## Operação Disponível:
+## Operações Disponíveis:
 
+### Criação e Envio
 - POST `/api/envelopes/send/base64` — enviar envelope com documento base64
+- POST `/api/envelopes/send/template` — enviar envelope baseado em template
 
-## Características:
+### Consulta e Listagem
+- GET `/api/envelopes` — listar envelopes com filtros e paginação
+- GET `/api/envelopes/{envelopeId}` — obter detalhes completos de um envelope
+- GET `/api/envelopes/{envelopeId}/history` — obter histórico de ações do envelope
 
-- **Upload direto**: Envie o PDF codificado em base64
-- **Validação automática**: O sistema valida se é um PDF válido
+### Gerenciamento
+- POST `/api/envelopes/resend` — reenviar envelope para destinatários
+- POST `/api/envelopes/void` — cancelar envelope (ação irreversível)
+
+## Características Principais:
+
+### Criação de Envelopes
+- **Upload direto**: Envie PDFs codificados em base64
+- **Templates**: Use templates pré-configurados com sobrescritas
+- **Validação automática**: Validação de PDF, campos e destinatários
 - **Limite de tamanho**: Máximo 10MB por documento
-- **Múltiplos destinatários**: Configure vários signatários
-- **Campos personalizáveis**: Configure campos de assinatura, texto, data, etc.
-- **Envio automático**: O envelope é enviado imediatamente após criação
-- **Autenticação**: Requer `Authorization: Bearer <token>`
+- **Múltiplos destinatários**: Configure vários signatários e observadores
+- **Campos personalizáveis**: Assinatura, texto, data, checkbox, radio
+- **Envio automático**: Envelopes são enviados imediatamente após criação
+
+### Gestão e Acompanhamento
+- **Listagem paginada**: Com filtros por status, data e texto
+- **Detalhes completos**: Acesso a todos os dados do envelope
+- **Histórico de auditoria**: Rastreamento completo de todas as ações
+- **Reenvio inteligente**: Apenas para destinatários pendentes
+- **Cancelamento controlado**: Com justificativa obrigatória
+
+### Status do Envelope
+| Status | Descrição |
+|--------|-----------|
+| `draft` | Rascunho (não enviado) |
+| `sent` | Enviado, aguardando assinaturas |
+| `completed` | Todas as assinaturas coletadas |
+| `voided` | Cancelado pelo remetente |
+| `expired` | Expirado sem completar |
 
 ## Para quem é ideal:
 
-- Integrações server-to-server
-- Sistemas que já possuem PDFs em memória
-- Automações de envio de contratos
-- Aplicações que não querem gerenciar uploads
-- Workflows que precisam de envio imediato
+- **Integrações server-to-server**: APIs robustas para sistemas corporativos
+- **Automações de workflow**: Envio automático de contratos e documentos
+- **Sistemas de gestão**: ERP, CRM e outras plataformas de negócio
+- **Aplicações personalizadas**: Que precisam de controle total sobre o processo
+- **Compliance e auditoria**: Com histórico completo e rastreabilidade
+
+## Autenticação
+
+Todas as operações requerem autenticação via Bearer Token:
+```
+Authorization: Bearer <access_token>
+```
+
+Obtenha seu token em `/api/token` usando suas credenciais de API Client.

@@ -1,0 +1,147 @@
+---
+title: Enviar Envelope com Template
+description: Cria e envia um envelope baseado em um template existente.
+openapi: 'POST /api/envelopes/send/template'
+---
+
+Este endpoint permite criar e enviar envelopes baseados em templates criados previamente, com possibilidade de sobrescrever dados específicos do template.
+
+<RequestExample>
+<CodeGroup>
+
+```bash cURL
+curl -X POST "https://api.formsign.com.br/api/envelopes/send/template" \
+  -H "Authorization: Bearer <TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "templateId": "tpl_abc123456789",
+    "subject": "Contrato Personalizado",
+    "recipients": [
+      {
+        "email": "cliente@example.com",
+        "name": "João Silva",
+        "signatureType": "draw",
+        "role": "signer"
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.formsign.com.br/api/envelopes/send/template', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer <TOKEN>',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    templateId: 'tpl_abc123456789',
+    subject: 'Contrato Personalizado',
+    recipients: [
+      {
+        email: 'cliente@example.com',
+        name: 'João Silva',
+        signatureType: 'draw',
+        role: 'signer'
+      }
+    ]
+  })
+});
+
+const result = await response.json();
+console.log('Envelope ID:', result.envelopeId);
+```
+
+```python Python
+import requests
+
+payload = {
+    "templateId": "tpl_abc123456789",
+    "subject": "Contrato Personalizado",
+    "recipients": [
+        {
+            "email": "cliente@example.com",
+            "name": "João Silva",
+            "signatureType": "draw",
+            "role": "signer"
+        }
+    ]
+}
+
+response = requests.post(
+    'https://api.formsign.com.br/api/envelopes/send/template',
+    json=payload,
+    headers={'Authorization': 'Bearer <TOKEN>'}
+)
+
+result = response.json()
+print(f"Envelope ID: {result['envelopeId']}")
+```
+
+</CodeGroup>
+</RequestExample>
+
+### Parâmetros (Body)
+
+<ParamField body="templateId" type="string" required>ID do template a ser usado como base.</ParamField>
+<ParamField body="subject" type="string">Sobrescrever o assunto do template.</ParamField>
+<ParamField body="message" type="string">Sobrescrever a mensagem do template.</ParamField>
+<ParamField body="recipients" type="array">Sobrescrever os destinatários do template.</ParamField>
+<ParamField body="observers" type="array">Adicionar observadores além dos do template.</ParamField>
+<ParamField body="fields" type="array">Sobrescrever os campos do template.</ParamField>
+<ParamField body="advancedOptions" type="object">Sobrescrever as opções avançadas do template.</ParamField>
+<ParamField body="base64Document" type="string">Sobrescrever o documento do template.</ParamField>
+<ParamField body="s3Key" type="string">Sobrescrever a chave S3 do template.</ParamField>
+<ParamField body="documentSettings" type="object">Sobrescrever as configurações do documento.</ParamField>
+
+### Lógica de Sobrescrita
+
+1. **Prioridade de Documento**: `base64Document` > `s3Key` (request) > `s3Key` (template)
+2. **Campos Obrigatórios**: Se não fornecidos no request, usa os do template
+3. **Validação**: Combinação final deve ter ao menos um destinatário, assunto e documento
+
+### Validações
+
+- **Template Existente**: O template deve existir e pertencer ao usuário
+- **Documento Válido**: Deve haver um documento (do template ou request)
+- **Destinatários**: Pelo menos um destinatário após aplicar sobrescritas
+- **Assunto**: Deve ter um assunto após aplicar sobrescritas
+
+### Respostas
+
+<ResponseExample>
+```json 200 Sucesso
+{ 
+  "message": "Success",
+  "envelopeId": "env_abc123456789"
+}
+```
+
+```json 400 Template Inválido
+{ 
+  "error": "templateId é obrigatório" 
+}
+```
+
+```json 404 Template Não Encontrado
+{ 
+  "error": "Template não encontrado" 
+}
+```
+
+```json 400 Dados Inválidos
+{ 
+  "error": "Deve ter pelo menos um destinatário (recipients no request ou no template)" 
+}
+```
+
+```json 401 Não Autorizado
+{ 
+  "error": "Unauthorized" 
+}
+```
+</ResponseExample>
+
+<Tip>
+**Base64 vs S3Key**: Se fornecer `base64Document`, ele terá prioridade sobre qualquer `s3Key` do template ou request. O sistema fará upload automático para S3 e atualizará os metadados.
+</Tip>

@@ -1,0 +1,210 @@
+---
+title: Obter Envelope por ID
+description: Obtém detalhes completos de um envelope específico.
+openapi: 'GET /api/envelopes/{envelopeId}'
+---
+
+Este endpoint retorna todos os detalhes de um envelope específico, incluindo campos, destinatários, histórico e configurações.
+
+<RequestExample>
+<CodeGroup>
+
+```bash cURL
+curl -X GET "https://api.formsign.com.br/api/envelopes/env_abc123456789" \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+```javascript JavaScript
+const envelopeId = 'env_abc123456789';
+const response = await fetch(`https://api.formsign.com.br/api/envelopes/${envelopeId}`, {
+  headers: {
+    'Authorization': 'Bearer <TOKEN>'
+  }
+});
+
+const envelope = await response.json();
+console.log('Envelope:', envelope.subject);
+console.log('Status:', envelope.status);
+console.log('Recipients:', envelope.recipients.length);
+```
+
+```python Python
+import requests
+
+envelope_id = 'env_abc123456789'
+response = requests.get(
+    f'https://api.formsign.com.br/api/envelopes/{envelope_id}',
+    headers={'Authorization': 'Bearer <TOKEN>'}
+)
+
+envelope = response.json()
+print(f"Envelope: {envelope['subject']}")
+print(f"Status: {envelope['status']}")
+print(f"Recipients: {len(envelope['recipients'])}")
+```
+
+</CodeGroup>
+</RequestExample>
+
+### Parâmetros (Path)
+
+<ParamField path="envelopeId" type="string" required>ID único do envelope.</ParamField>
+
+### Respostas
+
+<ResponseExample>
+```json 200 Sucesso
+{
+  "envelopeId": "env_abc123456789",
+  "subject": "Contrato de Prestação de Serviços",
+  "message": "Por favor, revise e assine o documento anexo.",
+  "status": "sent",
+  "submissionType": "document",
+  "creationDate": "2024-08-15T10:30:00Z",
+  "lastUpdateDate": "2024-08-15T10:35:00Z",
+  "sentDate": "2024-08-15T10:35:00Z",
+  "userId": "user_123",
+  "templateId": "tpl_456",
+  "fields": [
+    {
+      "type": "signature",
+      "identifier": "assinatura_cliente",
+      "name": "Assinatura do Cliente",
+      "value": null,
+      "required": true,
+      "readonly": false,
+      "x": 70.5,
+      "y": 85.2,
+      "w": 20.0,
+      "h": 8.0,
+      "pageNumber": 1,
+      "recipientRole": "signer"
+    },
+    {
+      "type": "date",
+      "identifier": "data_assinatura",
+      "name": "Data da Assinatura",
+      "value": null,
+      "required": true,
+      "readonly": false,
+      "x": 70.5,
+      "y": 77.0,
+      "w": 20.0,
+      "h": 6.0,
+      "pageNumber": 1,
+      "recipientRole": "signer"
+    }
+  ],
+  "recipients": [
+    {
+      "recipientId": "rec_789",
+      "email": "cliente@example.com",
+      "name": "João Silva",
+      "signatureType": "draw",
+      "order": 1,
+      "cpf": "123.456.789-00",
+      "status": "sent",
+      "role": "signer",
+      "color": "#FF6B6B",
+      "completedDate": null
+    }
+  ],
+  "observers": [],
+  "sender": {
+    "email": "empresa@example.com",
+    "userName": "Maria Santos"
+  },
+  "documentSettings": {
+    "documentName": "contrato.pdf",
+    "documentSizeMB": "2.45",
+    "fileHash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "advancedOptions": {
+    "autoReminders": true,
+    "reminderDelay": 2,
+    "reminderFrequency": 3,
+    "expirationDays": 30,
+    "expirationWarning": 5
+  },
+  "validationKey": "val_xyz789",
+  "s3Key": "documents/user_123/env_abc123456789.pdf",
+  "documentSignedS3Key": null,
+  "completedDate": null,
+  "expirationDate": "2024-09-14T10:35:00Z"
+}
+```
+
+```json 404 Envelope Não Encontrado
+{
+  "error": "Envelope not found"
+}
+```
+
+```json 401 Não Autorizado
+{
+  "error": "Unauthorized"
+}
+```
+
+```json 400 ID Inválido
+{
+  "error": "Envelope ID not provided"
+}
+```
+</ResponseExample>
+
+### Campos da Response
+
+<ResponseField name="envelopeId" type="string">ID único do envelope.</ResponseField>
+<ResponseField name="subject" type="string">Assunto do envelope.</ResponseField>
+<ResponseField name="message" type="string">Mensagem personalizada.</ResponseField>
+<ResponseField name="status" type="string">Status: draft, sent, completed, voided, expired.</ResponseField>
+<ResponseField name="submissionType" type="string">Tipo: document ou form.</ResponseField>
+<ResponseField name="creationDate" type="string">Data de criação (ISO 8601).</ResponseField>
+<ResponseField name="lastUpdateDate" type="string">Última atualização (ISO 8601).</ResponseField>
+<ResponseField name="sentDate" type="string">Data de envio (ISO 8601).</ResponseField>
+<ResponseField name="userId" type="string">ID do proprietário.</ResponseField>
+<ResponseField name="templateId" type="string">ID do template usado (se aplicável).</ResponseField>
+<ResponseField name="fields" type="array">Lista de campos do documento.</ResponseField>
+<ResponseField name="recipients" type="array">Lista de destinatários.</ResponseField>
+<ResponseField name="observers" type="array">Lista de observadores.</ResponseField>
+<ResponseField name="sender" type="object">Dados do remetente.</ResponseField>
+<ResponseField name="documentSettings" type="object">Configurações do documento.</ResponseField>
+<ResponseField name="advancedOptions" type="object">Opções avançadas.</ResponseField>
+<ResponseField name="validationKey" type="string">Chave de validação única.</ResponseField>
+<ResponseField name="s3Key" type="string">Chave S3 do documento original.</ResponseField>
+<ResponseField name="documentSignedS3Key" type="string">Chave S3 do documento assinado.</ResponseField>
+<ResponseField name="completedDate" type="string">Data de conclusão.</ResponseField>
+<ResponseField name="expirationDate" type="string">Data de expiração.</ResponseField>
+
+<Expandable title="fields[] (Campos do Documento)">
+  <ResponseField name="fields[].type" type="string">Tipo: signature, text, date, checkbox, radio.</ResponseField>
+  <ResponseField name="fields[].identifier" type="string">Identificador único.</ResponseField>
+  <ResponseField name="fields[].name" type="string">Nome do campo.</ResponseField>
+  <ResponseField name="fields[].value" type="any">Valor atual do campo.</ResponseField>
+  <ResponseField name="fields[].required" type="boolean">Se é obrigatório.</ResponseField>
+  <ResponseField name="fields[].readonly" type="boolean">Se é somente leitura.</ResponseField>
+  <ResponseField name="fields[].x" type="number">Posição X (%).</ResponseField>
+  <ResponseField name="fields[].y" type="number">Posição Y (%).</ResponseField>
+  <ResponseField name="fields[].w" type="number">Largura (%).</ResponseField>
+  <ResponseField name="fields[].h" type="number">Altura (%).</ResponseField>
+  <ResponseField name="fields[].pageNumber" type="integer">Número da página.</ResponseField>
+  <ResponseField name="fields[].recipientRole" type="string">Papel do destinatário responsável.</ResponseField>
+</Expandable>
+
+<Expandable title="recipients[] (Destinatários)">
+  <ResponseField name="recipients[].recipientId" type="string">ID único do destinatário.</ResponseField>
+  <ResponseField name="recipients[].email" type="string">Email do destinatário.</ResponseField>
+  <ResponseField name="recipients[].name" type="string">Nome do destinatário.</ResponseField>
+  <ResponseField name="recipients[].signatureType" type="string">Tipo: draw, type, upload.</ResponseField>
+  <ResponseField name="recipients[].order" type="integer">Ordem de assinatura.</ResponseField>
+  <ResponseField name="recipients[].cpf" type="string">CPF do destinatário.</ResponseField>
+  <ResponseField name="recipients[].status" type="string">Status: sent, opened, completed.</ResponseField>
+  <ResponseField name="recipients[].role" type="string">Papel: signer, cc, viewer.</ResponseField>
+  <ResponseField name="recipients[].color" type="string">Cor de identificação (hex).</ResponseField>
+  <ResponseField name="recipients[].completedDate" type="string">Data de conclusão.</ResponseField>
+</Expandable>
+
+<Note>
+Este endpoint retorna todos os detalhes do envelope, incluindo campos não preenchidos. Use este endpoint quando precisar de informações completas sobre o envelope.
+</Note>
