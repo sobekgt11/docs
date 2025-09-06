@@ -7,7 +7,6 @@ openapi: 'POST /api/templates'
 Este endpoint permite criar templates reutilizáveis para documentos ou formulários. Para documentos, você pode usar uma chave S3 existente ou criar um template de formulário simples.
 
 <RequestExample>
-<CodeGroup>
 
 ```bash cURL (Documento com S3)
 curl -X POST "https://api.formsign.com.br/api/templates" \
@@ -83,6 +82,8 @@ curl -X POST "https://api.formsign.com.br/api/templates" \
     "emailBody": "Prezado(a), segue anexo o contrato de locação para sua revisão e assinatura. Por favor, assine digitalmente e retorne."
   }'
 ```
+
+<CodeGroup>
 
 ```bash cURL (Formulário)
 curl -X POST "https://api.formsign.com.br/api/templates" \
@@ -523,7 +524,6 @@ func main() {
 ```
 
 </CodeGroup>
-</RequestExample>
 
 ### Parâmetros (Body)
 

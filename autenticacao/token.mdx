@@ -12,13 +12,14 @@ Use este endpoint para trocar suas credenciais de API (clientId e clientSecret) 
 - Header obrigatório: `Authorization: Basic <base64(clientId:clientSecret)>`
 
 <RequestExample>
-<CodeGroup>
 
 ```bash cURL
 curl -X POST \
   -H "Authorization: Basic $(echo -n 'CLIENT_ID:CLIENT_SECRET' | base64)" \
   https://api.formsign.com.br/api/token
 ```
+
+<CodeGroup>
 
 ```go Go
 package main
@@ -78,7 +79,6 @@ public class Main {
 ```
 
 </CodeGroup>
-</RequestExample>
 
 ### Campos
 

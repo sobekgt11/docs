@@ -7,7 +7,6 @@ openapi: 'POST /api/templates/base64'
 Este endpoint permite criar templates enviando o PDF diretamente codificado em base64, eliminando a necessidade de fazer upload para S3 previamente.
 
 <RequestExample>
-<CodeGroup>
 
 ```bash cURL
 curl -X POST "https://api.formsign.com.br/api/templates/base64" \
@@ -33,6 +32,9 @@ curl -X POST "https://api.formsign.com.br/api/templates/base64" \
     ]
   }'
 ```
+</RequestExample>
+
+<CodeGroup>
 
 ```javascript JavaScript
 const response = await fetch('https://api.formsign.com.br/api/templates/base64', {
@@ -159,7 +161,6 @@ func main() {
 ```
 
 </CodeGroup>
-</RequestExample>
 
 ### Parâmetros (Body)
 

@@ -7,7 +7,6 @@ openapi: 'POST /api/register'
 Este endpoint permite o registro de novos usuários na plataforma. Após o registro bem-sucedido, um token JWT é retornado para autenticação imediata.
 
 <RequestExample>
-<CodeGroup>
 
 ```bash cURL
 curl -X POST "https://api.formsign.com.br/api/register" \
@@ -18,6 +17,8 @@ curl -X POST "https://api.formsign.com.br/api/register" \
     "name": "João Silva"
   }'
 ```
+
+<CodeGroup>
 
 ```javascript JavaScript
 const response = await fetch('https://api.formsign.com.br/api/register', {
@@ -126,7 +127,6 @@ public class RegisterUser {
 ```
 
 </CodeGroup>
-</RequestExample>
 
 ### Parâmetros (Body)
 

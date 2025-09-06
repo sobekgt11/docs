@@ -7,7 +7,6 @@ openapi: 'POST /api/envelopes/void'
 Este endpoint permite cancelar um envelope que foi enviado, impedindo que destinatários façam novas assinaturas. O cancelamento é irreversível.
 
 <RequestExample>
-<CodeGroup>
 
 ```bash cURL
 curl -X POST "https://api.formsign.com.br/api/envelopes/void" \
@@ -18,6 +17,8 @@ curl -X POST "https://api.formsign.com.br/api/envelopes/void" \
     "justificativa": "Cliente informou que desistiu da compra do imóvel. Cancelamento solicitado via telefone em 15/08/2024 às 14:30h por João Silva (CPF: 123.456.789-00)."
   }'
 ```
+
+<CodeGroup>
 
 ```javascript JavaScript
 // Cenário: Sistema de gestão de contratos com cancelamento por mudança de termos
@@ -154,7 +155,6 @@ func main() {
 ```
 
 </CodeGroup>
-</RequestExample>
 
 ### Parâmetros (Body)
 

@@ -7,12 +7,13 @@ openapi: 'GET /api/envelopes/{envelopeId}'
 Este endpoint retorna todos os detalhes de um envelope específico, incluindo campos, destinatários, histórico e configurações.
 
 <RequestExample>
-<CodeGroup>
 
 ```bash cURL
 curl -X GET "https://api.formsign.com.br/api/envelopes/env_abc123456789" \
   -H "Authorization: Bearer <TOKEN>"
 ```
+
+<CodeGroup>
 
 ```javascript JavaScript
 const envelopeId = 'env_abc123456789';
@@ -240,7 +241,6 @@ func main() {
 }
 
 </CodeGroup>
-</RequestExample>
 
 ### Parâmetros (Path)
 

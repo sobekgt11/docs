@@ -7,7 +7,6 @@ openapi: 'POST /api/envelopes/resend'
 Este endpoint permite reenviar um envelope existente, gerando novos emails de notificação para os destinatários.
 
 <RequestExample>
-<CodeGroup>
 
 ```bash cURL
 # Reenviar contrato de trabalho após correção de email do funcionário
@@ -18,6 +17,8 @@ curl -X POST "https://api.formsign.com.br/api/envelopes/resend" \
     "envelopeId": "env_contrato_trabalho_2024_045"
   }'
 ```
+
+<CodeGroup>
 
 ```javascript JavaScript
 // Cenário: Sistema de RH reenviando contrato após resolução de problema técnico
@@ -257,7 +258,6 @@ func main() {
 ```
 
 </CodeGroup>
-</RequestExample>
 
 ### Parâmetros (Body)
 
