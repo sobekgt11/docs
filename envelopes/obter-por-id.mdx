@@ -22,14 +22,39 @@ const response = await fetch(`https://api.formsign.com.br/api/envelopes/${envelo
   }
 });
 
-const envelope = await response.json();
-console.log('Envelope:', envelope.subject);
-console.log('Status:', envelope.status);
-console.log('Recipients:', envelope.recipients.length);
+if (response.ok) {
+  const envelope = await response.json();
+  console.log('=== DETALHES DO ENVELOPE ===');
+  console.log(`Assunto: ${envelope.subject}`);
+  console.log(`Status: ${envelope.status}`);
+  console.log(`Criado em: ${envelope.creationDate}`);
+  console.log(`Atualizado em: ${envelope.lastUpdateDate}`);
+  
+  console.log('\n=== DESTINATÁRIOS ===');
+  envelope.recipients.forEach((recipient, index) => {
+    console.log(`${index + 1}. ${recipient.name} (${recipient.email})`);
+    console.log(`   Status: ${recipient.status} | Papel: ${recipient.role}`);
+  });
+  
+  console.log('\n=== CAMPOS DO DOCUMENTO ===');
+  envelope.fields.forEach(field => {
+    console.log(`- ${field.name || field.identifier}: ${field.type} (${field.required ? 'obrigatório' : 'opcional'})`);
+  });
+  
+  if (envelope.observers && envelope.observers.length > 0) {
+    console.log('\n=== OBSERVADORES ===');
+    envelope.observers.forEach(observer => {
+      console.log(`- ${observer.name} (${observer.email})`);
+    });
+  }
+} else {
+  console.error('Erro ao buscar envelope:', response.status);
+}
 ```
 
 ```python Python
 import requests
+from datetime import datetime
 
 envelope_id = 'env_abc123456789'
 response = requests.get(
@@ -37,11 +62,182 @@ response = requests.get(
     headers={'Authorization': 'Bearer <TOKEN>'}
 )
 
-envelope = response.json()
-print(f"Envelope: {envelope['subject']}")
-print(f"Status: {envelope['status']}")
-print(f"Recipients: {len(envelope['recipients'])}")
+if response.status_code == 200:
+    envelope = response.json()
+    
+    print("=== DETALHES DO ENVELOPE ===")
+    print(f"Assunto: {envelope['subject']}")
+    print(f"Status: {envelope['status']}")
+    print(f"Tipo: {envelope['submissionType']}")
+    print(f"Criado em: {envelope['creationDate']}")
+    print(f"Atualizado em: {envelope['lastUpdateDate']}")
+    
+    if envelope.get('sentDate'):
+        print(f"Enviado em: {envelope['sentDate']}")
+    
+    if envelope.get('completedDate'):
+        print(f"Completado em: {envelope['completedDate']}")
+    
+    if envelope.get('expirationDate'):
+        print(f"Expira em: {envelope['expirationDate']}")
+    
+    print(f"\n=== REMETENTE ===")
+    sender = envelope['sender']
+    print(f"Nome: {sender['userName']}")
+    print(f"Email: {sender['email']}")
+    
+    print(f"\n=== DESTINATÁRIOS ({len(envelope['recipients'])}) ===")
+    for i, recipient in enumerate(envelope['recipients'], 1):
+        print(f"{i}. {recipient['name']} ({recipient['email']})")
+        print(f"   Status: {recipient['status']} | Papel: {recipient['role']}")
+        print(f"   Tipo de Assinatura: {recipient['signatureType']}")
+        if recipient.get('cpf'):
+            print(f"   CPF/CNPJ: {recipient['cpf']}")
+        if recipient.get('completedDate'):
+            print(f"   Assinado em: {recipient['completedDate']}")
+        print()
+    
+    print(f"=== CAMPOS DO DOCUMENTO ({len(envelope['fields'])}) ===")
+    for field in envelope['fields']:
+        field_name = field.get('name', field['identifier'])
+        required_text = "obrigatório" if field['required'] else "opcional"
+        print(f"- {field_name}: {field['type']} ({required_text})")
+        print(f"  Posição: x={field['x']}%, y={field['y']}%, w={field['w']}%, h={field['h']}%")
+        if field.get('pageNumber'):
+            print(f"  Página: {field['pageNumber']}")
+        if field.get('recipientRole'):
+            print(f"  Responsável: {field['recipientRole']}")
+        print()
+    
+    if envelope.get('observers') and len(envelope['observers']) > 0:
+        print(f"=== OBSERVADORES ({len(envelope['observers'])}) ===")
+        for observer in envelope['observers']:
+            print(f"- {observer['name']} ({observer['email']})")
+    
+    print("=== OPÇÕES AVANÇADAS ===")
+    adv_opts = envelope['advancedOptions']
+    print(f"Lembretes automáticos: {'Sim' if adv_opts['autoReminders'] else 'Não'}")
+    print(f"Atraso inicial: {adv_opts['reminderDelay']} dias")
+    print(f"Frequência: {adv_opts['reminderFrequency']} dias")
+    print(f"Expiração: {adv_opts['expirationDays']} dias")
+    print(f"Aviso de expiração: {adv_opts['expirationWarning']} dias")
+    
+else:
+    print(f"Erro ao buscar envelope: {response.status_code}")
+    print(response.json())
 ```
+
+```go Go
+package main
+
+import (
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    envelopeID := "env_abc123456789"
+    url := fmt.Sprintf("https://api.formsign.com.br/api/envelopes/%s", envelopeID)
+    
+    req, _ := http.NewRequest("GET", url, nil)
+    req.Header.Set("Authorization", "Bearer <TOKEN>")
+    
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+    
+    body, _ := io.ReadAll(resp.Body)
+    
+    if resp.StatusCode == 200 {
+        var envelope map[string]interface{}
+        json.Unmarshal(body, &envelope)
+        
+        fmt.Println("=== DETALHES DO ENVELOPE ===")
+        fmt.Printf("Assunto: %v\n", envelope["subject"])
+        fmt.Printf("Status: %v\n", envelope["status"])
+        fmt.Printf("Tipo: %v\n", envelope["submissionType"])
+        fmt.Printf("Criado em: %v\n", envelope["creationDate"])
+        fmt.Printf("ID do Usuário: %v\n", envelope["userId"])
+        
+        if envelope["templateId"] != nil {
+            fmt.Printf("Template ID: %v\n", envelope["templateId"])
+        }
+        
+        if envelope["sentDate"] != nil {
+            fmt.Printf("Enviado em: %v\n", envelope["sentDate"])
+        }
+        
+        if envelope["completedDate"] != nil {
+            fmt.Printf("Completado em: %v\n", envelope["completedDate"])
+        }
+        
+        fmt.Println("\n=== REMETENTE ===")
+        sender := envelope["sender"].(map[string]interface{})
+        fmt.Printf("Nome: %v\n", sender["userName"])
+        fmt.Printf("Email: %v\n", sender["email"])
+        
+        fmt.Println("\n=== DESTINATÁRIOS ===")
+        recipients := envelope["recipients"].([]interface{})
+        for i, r := range recipients {
+            recipient := r.(map[string]interface{})
+            fmt.Printf("%d. %v (%v)\n", i+1, recipient["name"], recipient["email"])
+            fmt.Printf("   Status: %v | Papel: %v\n", recipient["status"], recipient["role"])
+            fmt.Printf("   Tipo de Assinatura: %v\n", recipient["signatureType"])
+            
+            if recipient["cpf"] != nil {
+                fmt.Printf("   CPF/CNPJ: %v\n", recipient["cpf"])
+            }
+            
+            if recipient["completedDate"] != nil {
+                fmt.Printf("   Assinado em: %v\n", recipient["completedDate"])
+            }
+            fmt.Println()
+        }
+        
+        fmt.Println("=== CAMPOS ===")
+        fields := envelope["fields"].([]interface{})
+        for _, f := range fields {
+            field := f.(map[string]interface{})
+            fieldName := field["identifier"]
+            if field["name"] != nil {
+                fieldName = field["name"]
+            }
+            
+            required := "opcional"
+            if field["required"].(bool) {
+                required = "obrigatório"
+            }
+            
+            fmt.Printf("- %v: %v (%v)\n", fieldName, field["type"], required)
+            fmt.Printf("  Posição: x=%.1f%%, y=%.1f%%, w=%.1f%%, h=%.1f%%\n", 
+                field["x"], field["y"], field["w"], field["h"])
+            
+            if field["pageNumber"] != nil {
+                fmt.Printf("  Página: %.0f\n", field["pageNumber"])
+            }
+        }
+        
+        if envelope["observers"] != nil {
+            observers := envelope["observers"].([]interface{})
+            if len(observers) > 0 {
+                fmt.Println("\n=== OBSERVADORES ===")
+                for _, o := range observers {
+                    observer := o.(map[string]interface{})
+                    fmt.Printf("- %v (%v)\n", observer["name"], observer["email"])
+                }
+            }
+        }
+        
+    } else {
+        fmt.Printf("Erro: %d\n", resp.StatusCode)
+        fmt.Println(string(body))
+    }
+}
 
 </CodeGroup>
 </RequestExample>

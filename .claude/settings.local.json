@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(git add:*)",
-      "Read(//c/Users/PC/Downloads/GridStack 2/**)"
+      "Read(//c/Users/PC/Downloads/GridStack 2/**)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

@@ -15,11 +15,14 @@ curl -X POST "https://api.formsign.com.br/api/envelopes/void" \
   -H "Content-Type: application/json" \
   -d '{
     "envelopeId": "env_abc123456789",
-    "justificativa": "Cliente solicitou cancelamento do contrato"
+    "justificativa": "Cliente informou que desistiu da compra do imóvel. Cancelamento solicitado via telefone em 15/08/2024 às 14:30h por João Silva (CPF: 123.456.789-00)."
   }'
 ```
 
 ```javascript JavaScript
+// Cenário: Sistema de gestão de contratos com cancelamento por mudança de termos
+const envelopeId = 'env_contrato_locacao_2024_001';
+
 const response = await fetch('https://api.formsign.com.br/api/envelopes/void', {
   method: 'POST',
   headers: {
@@ -27,31 +30,95 @@ const response = await fetch('https://api.formsign.com.br/api/envelopes/void', {
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    envelopeId: 'env_abc123456789',
-    justificativa: 'Cliente solicitou cancelamento do contrato'
+    envelopeId: envelopeId,
+    justificativa: 'Necessário alterar cláusulas do contrato de locação. Proprietário solicitou inclusão de nova cláusula sobre animais de estimação. Novo envelope será criado com termos atualizados.'
   })
 });
 
-const result = await response.json();
-console.log('Envelope cancelado:', result.envelopeId);
+if (response.ok) {
+  const result = await response.json();
+  console.log('✅ Envelope cancelado com sucesso!');
+  console.log(`📄 Envelope ID: ${result.envelopeId}`);
+  console.log(`📅 Cancelado em: ${new Date().toLocaleString('pt-BR')}`);
+  console.log(`📝 Status: ${result.message}`);
+  
+  // Log para auditoria interna
+  console.log('\n=== PRÓXIMOS PASSOS ===');
+  console.log('1. Informar destinatários sobre o cancelamento');
+  console.log('2. Preparar nova versão do contrato');
+  console.log('3. Criar novo envelope com termos atualizados');
+  
+} else {
+  const error = await response.json();
+  console.error('❌ Erro ao cancelar envelope:', error.error);
+  
+  if (response.status === 400) {
+    console.error('💡 Possível causa: Envelope já foi assinado ou já está cancelado');
+  } else if (response.status === 404) {
+    console.error('💡 Possível causa: Envelope não encontrado ou não pertence a este usuário');
+  }
+}
 ```
 
 ```python Python
 import requests
+from datetime import datetime
 
-payload = {
-    "envelopeId": "env_abc123456789",
-    "justificativa": "Cliente solicitou cancelamento do contrato"
+# Cenário: Cancelamento de NDA por mudança na parceria empresarial
+envelope_data = {
+    "envelopeId": "env_nda_empresa_tech_2024",
+    "justificativa": "Parceria comercial foi cancelada após reunião do board. Empresa Tech Solutions informou que não prosseguirá com o projeto Alpha. Email de confirmação recebido em 20/08/2024. Responsável: Maria Santos (Gerente Comercial)."
 }
+
+print("🔄 Iniciando cancelamento do envelope...")
+print(f"📄 Envelope: {envelope_data['envelopeId']}")
+print(f"📅 Data/Hora: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
 
 response = requests.post(
     'https://api.formsign.com.br/api/envelopes/void',
-    json=payload,
+    json=envelope_data,
     headers={'Authorization': 'Bearer <TOKEN>'}
 )
 
-result = response.json()
-print(f"Envelope cancelado: {result['envelopeId']}")
+if response.status_code == 200:
+    result = response.json()
+    print(f"\n✅ CANCELAMENTO REALIZADO COM SUCESSO!")
+    print(f"📄 Envelope ID: {result['envelopeId']}")
+    print(f"📝 Mensagem: {result['message']}")
+    
+    # Log de auditoria
+    print(f"\n=== REGISTRO DE AUDITORIA ===")
+    print(f"Ação: Cancelamento de envelope")
+    print(f"Usuário: [Obtido do token JWT]") 
+    print(f"Data/Hora: {datetime.now().isoformat()}")
+    print(f"Motivo: {envelope_data['justificativa'][:100]}{'...' if len(envelope_data['justificativa']) > 100 else ''}")
+    
+    # Notificar sistema de CRM ou outros sistemas integrados
+    print(f"\n=== INTEGRAÇÕES ===")
+    print("📧 Notificar por email: Pendente")
+    print("📊 Atualizar CRM: Pendente") 
+    print("📁 Arquivar documentos: Pendente")
+    
+elif response.status_code == 400:
+    error = response.json()
+    print(f"❌ ERRO: {error['error']}")
+    print("💡 Verifique se o envelope ainda pode ser cancelado (não foi completado/já cancelado)")
+    
+elif response.status_code == 404:
+    print("❌ ERRO: Envelope não encontrado")
+    print("💡 Verifique se o ID está correto e se pertence ao seu usuário")
+    
+elif response.status_code == 401:
+    print("❌ ERRO: Não autorizado")
+    print("💡 Verifique se o token Bearer está válido")
+    
+else:
+    print(f"❌ ERRO INESPERADO: Status {response.status_code}")
+    try:
+        error_detail = response.json()
+        print(f"Detalhes: {error_detail}")
+    except:
+        print(f"Resposta: {response.text}")
 ```
 
 ```go Go

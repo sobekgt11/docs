@@ -10,45 +10,219 @@ Este endpoint permite reenviar um envelope existente, gerando novos emails de no
 <CodeGroup>
 
 ```bash cURL
+# Reenviar contrato de trabalho após correção de email do funcionário
 curl -X POST "https://api.formsign.com.br/api/envelopes/resend" \
   -H "Authorization: Bearer <TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{
-    "envelopeId": "env_abc123456789"
+    "envelopeId": "env_contrato_trabalho_2024_045"
   }'
 ```
 
 ```javascript JavaScript
-const response = await fetch('https://api.formsign.com.br/api/envelopes/resend', {
-  method: 'POST',
-  headers: {
-    'Authorization': 'Bearer <TOKEN>',
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    envelopeId: 'env_abc123456789'
-  })
-});
+// Cenário: Sistema de RH reenviando contrato após resolução de problema técnico
+async function reenviarContratoTrabalho(envelopeId, nomeColaborador) {
+  console.log(`🔄 Reenviando contrato de trabalho...`);
+  console.log(`👤 Colaborador: ${nomeColaborador}`);
+  console.log(`📄 Envelope ID: ${envelopeId}`);
+  
+  try {
+    const response = await fetch('https://api.formsign.com.br/api/envelopes/resend', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer <TOKEN>',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        envelopeId: envelopeId
+      })
+    });
 
-const result = await response.json();
-console.log('Envelope reenviado:', result.envelopeId);
+    if (response.ok) {
+      const result = await response.json();
+      console.log('✅ Contrato reenviado com sucesso!');
+      console.log(`📄 Envelope: ${result.envelopeId}`);
+      console.log(`📧 Status: ${result.message}`);
+      
+      // Log para sistema de RH
+      console.log('\n=== REGISTRO RH ===');
+      console.log(`📅 Data/Hora: ${new Date().toLocaleString('pt-BR')}`);
+      console.log(`🎯 Motivo: Email de contrato reenviado após correção de dados`);
+      console.log(`📋 Próximos passos: Aguardar assinatura do colaborador`);
+      
+      return { success: true, envelopeId: result.envelopeId };
+      
+    } else {
+      const error = await response.json();
+      console.error('❌ Erro ao reenviar:', error.error);
+      
+      if (response.status === 400) {
+        console.error('💡 Possível causa: Envelope já foi completado ou cancelado');
+      } else if (response.status === 404) {
+        console.error('💡 Possível causa: Envelope não encontrado');
+      }
+      
+      return { success: false, error: error.error };
+    }
+    
+  } catch (error) {
+    console.error('❌ Erro de conexão:', error.message);
+    return { success: false, error: error.message };
+  }
+}
+
+// Exemplo de uso
+const resultado = await reenviarContratoTrabalho(
+  'env_contrato_trabalho_2024_045',
+  'Ana Paula Santos'
+);
+
+if (resultado.success) {
+  console.log('\n✅ Processo concluído - colaborador será notificado por email');
+} else {
+  console.log('\n❌ Falha no reenvio - verificar com equipe técnica');
+}
 ```
 
 ```python Python
 import requests
+from datetime import datetime
+import logging
 
-payload = {
-    "envelopeId": "env_abc123456789"
-}
+# Configurar logging para auditoria
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-response = requests.post(
-    'https://api.formsign.com.br/api/envelopes/resend',
-    json=payload,
-    headers={'Authorization': 'Bearer <TOKEN>'}
-)
+class GerenciadorEnvelopes:
+    def __init__(self, token):
+        self.token = token
+        self.base_url = 'https://api.formsign.com.br'
+        self.headers = {
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json'
+        }
+    
+    def reenviar_envelope(self, envelope_id, motivo_reenvio=None):
+        """
+        Reenvia um envelope para os destinatários
+        
+        Args:
+            envelope_id (str): ID do envelope a ser reenviado
+            motivo_reenvio (str): Motivo do reenvio para log de auditoria
+        
+        Returns:
+            dict: Resultado da operação
+        """
+        
+        logger.info(f"Iniciando reenvio do envelope: {envelope_id}")
+        if motivo_reenvio:
+            logger.info(f"Motivo: {motivo_reenvio}")
+        
+        payload = {"envelopeId": envelope_id}
+        
+        try:
+            response = requests.post(
+                f'{self.base_url}/api/envelopes/resend',
+                json=payload,
+                headers=self.headers,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                logger.info(f"✅ Envelope reenviado com sucesso: {result['envelopeId']}")
+                
+                # Registrar evento de auditoria
+                audit_data = {
+                    'acao': 'reenvio_envelope',
+                    'envelope_id': envelope_id,
+                    'timestamp': datetime.now().isoformat(),
+                    'motivo': motivo_reenvio or 'Não informado',
+                    'resultado': 'sucesso'
+                }
+                
+                logger.info(f"📋 Auditoria: {audit_data}")
+                
+                return {
+                    'sucesso': True,
+                    'envelope_id': result['envelopeId'],
+                    'mensagem': result['message'],
+                    'audit': audit_data
+                }
+                
+            else:
+                error = response.json()
+                logger.error(f"❌ Erro HTTP {response.status_code}: {error.get('error', 'Erro desconhecido')}")
+                
+                # Mapear códigos de erro comuns
+                error_messages = {
+                    400: "Envelope não pode ser reenviado (já completado, cancelado ou inválido)",
+                    401: "Token de autorização inválido ou expirado", 
+                    404: "Envelope não encontrado ou não pertence ao usuário",
+                    429: "Muitas tentativas - aguarde antes de tentar novamente",
+                    500: "Erro interno do servidor - tente novamente em alguns minutos"
+                }
+                
+                friendly_error = error_messages.get(response.status_code, f"Erro HTTP {response.status_code}")
+                
+                return {
+                    'sucesso': False,
+                    'erro': error.get('error', 'Erro desconhecido'),
+                    'codigo_http': response.status_code,
+                    'mensagem_amigavel': friendly_error
+                }
+                
+        except requests.exceptions.Timeout:
+            logger.error("❌ Timeout na requisição")
+            return {'sucesso': False, 'erro': 'Timeout na conexão com o servidor'}
+            
+        except requests.exceptions.ConnectionError:
+            logger.error("❌ Erro de conexão")
+            return {'sucesso': False, 'erro': 'Erro de conexão com o servidor'}
+            
+        except Exception as e:
+            logger.error(f"❌ Erro inesperado: {str(e)}")
+            return {'sucesso': False, 'erro': f'Erro inesperado: {str(e)}'}
 
-result = response.json()
-print(f"Envelope reenviado: {result['envelopeId']}")
+# Exemplo de uso em um sistema de gestão de documentos
+def main():
+    # Cenário: Sistema de imobiliária reenviando contrato de compra e venda
+    gerenciador = GerenciadorEnvelopes('<TOKEN>')
+    
+    envelope_id = "env_compra_venda_imovel_sp_2024"
+    motivo = "Cliente informou que não recebeu o email inicial. Caixa de spam verificada. Solicitado reenvio via WhatsApp."
+    
+    print("🏠 Sistema de Gestão Imobiliária")
+    print(f"📄 Reenviando contrato: {envelope_id}")
+    print(f"📅 Data: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
+    print(f"🔍 Motivo: {motivo}")
+    
+    resultado = gerenciador.reenviar_envelope(envelope_id, motivo)
+    
+    if resultado['sucesso']:
+        print(f"\n✅ REENVIO CONCLUÍDO")
+        print(f"📄 Envelope: {resultado['envelope_id']}")
+        print(f"📝 Mensagem: {resultado['mensagem']}")
+        print(f"📋 Auditoria registrada: {resultado['audit']['timestamp']}")
+        
+        # Próximas ações do sistema
+        print(f"\n=== PRÓXIMAS AÇÕES ===")
+        print("📧 Email de notificação enviado aos clientes")
+        print("📱 WhatsApp de confirmação será enviado")
+        print("📅 Lembrete agendado para 24h")
+        
+    else:
+        print(f"\n❌ FALHA NO REENVIO")
+        print(f"🚨 Erro: {resultado['erro']}")
+        print(f"💡 Sugestão: {resultado.get('mensagem_amigavel', 'Verificar logs')}")
+        
+        # Escalação automática do erro
+        print(f"\n=== ESCALAÇÃO ===")
+        print("📧 Notificando supervisor")
+        print("🔧 Ticket técnico criado automaticamente")
+
+if __name__ == "__main__":
+    main()
 ```
 
 ```go Go

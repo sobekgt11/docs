@@ -22,15 +22,68 @@ const response = await fetch(`https://api.formsign.com.br/api/envelopes/${envelo
   }
 });
 
-const history = await response.json();
-console.log(`Histórico com ${history.length} ações`);
-history.forEach(action => {
-  console.log(`${action.creationDate}: ${action.action} por ${action.executorName}`);
-});
+if (response.ok) {
+  const history = await response.json();
+  console.log(`=== HISTÓRICO DO ENVELOPE (${history.length} ações) ===`);
+  
+  history.forEach((action, index) => {
+    const date = new Date(action.creationDate).toLocaleString('pt-BR');
+    console.log(`\n${index + 1}. [${date}] ${action.action.toUpperCase()}`);
+    console.log(`   Executor: ${action.executorName} (${action.executorId})`);
+    
+    if (action.executorIp) {
+      console.log(`   IP: ${action.executorIp}`);
+    }
+    
+    // Diferentes tipos de ação com contexto adicional
+    switch(action.action.toLowerCase()) {
+      case 'created':
+        console.log(`   📄 Envelope criado e preparado para envio`);
+        break;
+      case 'sent':
+        console.log(`   📧 Envelope enviado para todos os destinatários`);
+        break;
+      case 'viewed':
+        console.log(`   👀 Documento visualizado pelo destinatário`);
+        break;
+      case 'signed':
+        console.log(`   ✍️ Documento assinado digitalmente`);
+        break;
+      case 'completed':
+        console.log(`   ✅ Todas as assinaturas foram coletadas`);
+        break;
+      case 'voided':
+        console.log(`   ❌ Envelope cancelado - processo interrompido`);
+        break;
+      case 'declined':
+        console.log(`   🚫 Assinatura recusada pelo destinatário`);
+        break;
+      case 'expired':
+        console.log(`   ⏰ Envelope expirado por falta de ação`);
+        break;
+      case 'reminder_sent':
+        console.log(`   🔔 Lembrete automático enviado`);
+        break;
+      default:
+        console.log(`   🔧 Ação: ${action.action}`);
+    }
+  });
+  
+  // Resumo do status atual
+  const lastAction = history[history.length - 1];
+  console.log(`\n=== STATUS ATUAL ===`);
+  console.log(`Última ação: ${lastAction.action} em ${new Date(lastAction.creationDate).toLocaleString('pt-BR')}`);
+  
+} else {
+  console.error('Erro ao buscar histórico:', response.status);
+  const error = await response.json();
+  console.error(error);
+}
 ```
 
 ```python Python
 import requests
+from datetime import datetime
 
 envelope_id = 'env_abc123456789'
 response = requests.get(
@@ -38,10 +91,73 @@ response = requests.get(
     headers={'Authorization': 'Bearer <TOKEN>'}
 )
 
-history = response.json()
-print(f"Histórico com {len(history)} ações")
-for action in history:
-    print(f"{action['creationDate']}: {action['action']} por {action['executorName']}")
+if response.status_code == 200:
+    history = response.json()
+    print(f"=== HISTÓRICO DO ENVELOPE ({len(history)} ações) ===")
+    
+    action_icons = {
+        'created': '📄',
+        'sent': '📧', 
+        'viewed': '👀',
+        'signed': '✍️',
+        'completed': '✅',
+        'voided': '❌',
+        'declined': '🚫',
+        'expired': '⏰',
+        'reminder_sent': '🔔'
+    }
+    
+    action_descriptions = {
+        'created': 'Envelope criado e preparado para envio',
+        'sent': 'Envelope enviado para todos os destinatários',
+        'viewed': 'Documento visualizado pelo destinatário',
+        'signed': 'Documento assinado digitalmente',
+        'completed': 'Todas as assinaturas foram coletadas',
+        'voided': 'Envelope cancelado - processo interrompido',
+        'declined': 'Assinatura recusada pelo destinatário',
+        'expired': 'Envelope expirado por falta de ação',
+        'reminder_sent': 'Lembrete automático enviado'
+    }
+    
+    for i, action in enumerate(history, 1):
+        # Converter data para formato brasileiro
+        action_date = datetime.fromisoformat(action['creationDate'].replace('Z', '+00:00'))
+        formatted_date = action_date.strftime('%d/%m/%Y %H:%M:%S')
+        
+        action_key = action['action'].lower()
+        icon = action_icons.get(action_key, '🔧')
+        description = action_descriptions.get(action_key, f"Ação: {action['action']}")
+        
+        print(f"\n{i}. [{formatted_date}] {action['action'].upper()}")
+        print(f"   Executor: {action['executorName']} ({action['executorId']})")
+        
+        if action.get('executorIp'):
+            print(f"   IP: {action['executorIp']}")
+            
+        print(f"   {icon} {description}")
+    
+    # Estatísticas do histórico
+    print(f"\n=== ESTATÍSTICAS ===")
+    action_counts = {}
+    for action in history:
+        action_type = action['action'].lower()
+        action_counts[action_type] = action_counts.get(action_type, 0) + 1
+    
+    for action_type, count in action_counts.items():
+        icon = action_icons.get(action_type, '🔧')
+        print(f"{icon} {action_type.capitalize()}: {count}")
+    
+    # Status atual
+    if history:
+        last_action = history[-1]
+        last_date = datetime.fromisoformat(last_action['creationDate'].replace('Z', '+00:00'))
+        print(f"\n=== STATUS ATUAL ===")
+        print(f"Última ação: {last_action['action']} em {last_date.strftime('%d/%m/%Y %H:%M:%S')}")
+        print(f"Por: {last_action['executorName']}")
+        
+else:
+    print(f"Erro ao buscar histórico: {response.status_code}")
+    print(response.json())
 ```
 
 ```go Go

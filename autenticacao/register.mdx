@@ -1,0 +1,226 @@
+---
+title: /api/register
+description: Registra um novo usuário na plataforma e retorna um token de autenticação.
+openapi: 'POST /api/register'
+---
+
+Este endpoint permite o registro de novos usuários na plataforma. Após o registro bem-sucedido, um token JWT é retornado para autenticação imediata.
+
+<RequestExample>
+<CodeGroup>
+
+```bash cURL
+curl -X POST "https://api.formsign.com.br/api/register" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "joao.silva@empresa.com.br",
+    "password": "MinhaSenh@Segura123",
+    "name": "João Silva"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.formsign.com.br/api/register', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    email: 'joao.silva@empresa.com.br',
+    password: 'MinhaSenh@Segura123',
+    name: 'João Silva'
+  })
+});
+
+const result = await response.json();
+console.log('Token:', result.token);
+console.log('User ID:', result.user.userId);
+```
+
+```python Python
+import requests
+
+payload = {
+    "email": "joao.silva@empresa.com.br",
+    "password": "MinhaSenh@Segura123",
+    "name": "João Silva"
+}
+
+response = requests.post(
+    'https://api.formsign.com.br/api/register',
+    json=payload
+)
+
+result = response.json()
+print(f"Token: {result['token']}")
+print(f"User ID: {result['user']['userId']}")
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]interface{}{
+        "email":    "joao.silva@empresa.com.br",
+        "password": "MinhaSenh@Segura123",
+        "name":     "João Silva",
+    }
+    
+    jsonData, _ := json.Marshal(payload)
+    resp, err := http.Post(
+        "https://api.formsign.com.br/api/register",
+        "application/json",
+        bytes.NewBuffer(jsonData),
+    )
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+    
+    body, _ := io.ReadAll(resp.Body)
+    
+    var result map[string]interface{}
+    json.Unmarshal(body, &result)
+    
+    fmt.Printf("Token: %v\n", result["token"])
+    fmt.Printf("User ID: %v\n", result["user"].(map[string]interface{})["userId"])
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+import com.google.gson.Gson;
+import java.util.Map;
+import java.util.HashMap;
+
+public class RegisterUser {
+    public static void main(String[] args) throws Exception {
+        Map<String, String> payload = new HashMap<>();
+        payload.put("email", "joao.silva@empresa.com.br");
+        payload.put("password", "MinhaSenh@Segura123");
+        payload.put("name", "João Silva");
+        
+        String json = new Gson().toJson(payload);
+        
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://api.formsign.com.br/api/register"))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(json))
+            .build();
+            
+        HttpResponse<String> response = HttpClient.newHttpClient()
+            .send(request, HttpResponse.BodyHandlers.ofString());
+            
+        System.out.println("Response: " + response.body());
+    }
+}
+```
+
+</CodeGroup>
+</RequestExample>
+
+### Parâmetros (Body)
+
+<ParamField body="email" type="string" required>
+Email válido do usuário. Será usado como identificador de login.
+</ParamField>
+
+<ParamField body="password" type="string" required>
+Senha do usuário. Deve ter pelo menos 6 caracteres.
+</ParamField>
+
+<ParamField body="name" type="string" required>
+Nome completo do usuário.
+</ParamField>
+
+### Validações
+
+- **Email único**: O email não pode estar cadastrado no sistema
+- **Formato de email**: Deve ser um email válido
+- **Senha**: Mínimo de 6 caracteres
+- **Nome**: Campo obrigatório, não pode estar vazio
+
+### Respostas
+
+<ResponseExample>
+
+```json 201 Sucesso
+{
+  "message": "Usuário registrado com sucesso",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "userId": "usr_abc123456789",
+    "email": "joao.silva@empresa.com.br",
+    "name": "João Silva"
+  }
+}
+```
+
+```json 400 Dados Inválidos
+{
+  "error": "Email, senha e nome são obrigatórios"
+}
+```
+
+```json 400 Senha Muito Curta
+{
+  "error": "A senha deve ter pelo menos 6 caracteres"
+}
+```
+
+```json 409 Email Já Cadastrado
+{
+  "error": "Email já cadastrado no sistema"
+}
+```
+
+```json 500 Erro Interno
+{
+  "error": "Erro ao registrar usuário"
+}
+```
+
+</ResponseExample>
+
+### Campos da Resposta
+
+<ResponseField name="message" type="string">
+Mensagem de confirmação do registro.
+</ResponseField>
+
+<ResponseField name="token" type="string">
+Token JWT válido por 24 horas para autenticação imediata.
+</ResponseField>
+
+<ResponseField name="user" type="object">
+Dados do usuário registrado.
+</ResponseField>
+
+<ResponseField name="user.userId" type="string">
+ID único do usuário no sistema.
+</ResponseField>
+
+<ResponseField name="user.email" type="string">
+Email confirmado do usuário.
+</ResponseField>
+
+<ResponseField name="user.name" type="string">
+Nome do usuário registrado.
+</ResponseField>
+
+<Note>
+**Token de Registro**: O token retornado no registro pode ser usado imediatamente para acessar endpoints autenticados. Ele tem validade de 24 horas.
+</Note>
+
+<Tip>
+**Próximos Passos**: Após o registro, use o token para criar credenciais de API através do endpoint `/api/api-clients` ou acesse diretamente as funcionalidades da plataforma.
+</Tip>

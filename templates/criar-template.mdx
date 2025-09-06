@@ -1,0 +1,671 @@
+---
+title: Criar Template
+description: Cria um template de documento ou formulário para reutilização.
+openapi: 'POST /api/templates'
+---
+
+Este endpoint permite criar templates reutilizáveis para documentos ou formulários. Para documentos, você pode usar uma chave S3 existente ou criar um template de formulário simples.
+
+<RequestExample>
+<CodeGroup>
+
+```bash cURL (Documento com S3)
+curl -X POST "https://api.formsign.com.br/api/templates" \
+  -H "Authorization: Bearer <TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "templateName": "Contrato de Locação Residencial",
+    "templateDescription": "Template padrão para contratos de locação de imóveis residenciais",
+    "submissionType": "document",
+    "s3Key": "documents/usr_abc123/contract_template_locacao.pdf",
+    "documentSettings": {
+      "documentName": "contrato_locacao.pdf",
+      "documentSizeMB": "0.8",
+      "fileHash": "sha256:a1b2c3d4e5f6789..."
+    },
+    "fields": [
+      {
+        "type": "signature",
+        "identifier": "assinatura_locador",
+        "name": "Assinatura do Locador",
+        "required": true,
+        "x": 15,
+        "y": 85,
+        "w": 25,
+        "h": 10,
+        "pageNumber": 3,
+        "recipientRole": "landlord"
+      },
+      {
+        "type": "signature", 
+        "identifier": "assinatura_locatario",
+        "name": "Assinatura do Locatário",
+        "required": true,
+        "x": 60,
+        "y": 85,
+        "w": 25,
+        "h": 10,
+        "pageNumber": 3,
+        "recipientRole": "tenant"
+      },
+      {
+        "type": "date",
+        "identifier": "data_contrato",
+        "name": "Data do Contrato",
+        "required": true,
+        "x": 70,
+        "y": 75,
+        "w": 20,
+        "h": 6,
+        "pageNumber": 3
+      },
+      {
+        "type": "text",
+        "identifier": "valor_aluguel",
+        "name": "Valor do Aluguel",
+        "required": true,
+        "x": 45,
+        "y": 40,
+        "w": 15,
+        "h": 5,
+        "pageNumber": 1,
+        "placeholder": "R$ 0,00"
+      }
+    ],
+    "advancedOptions": {
+      "autoReminders": true,
+      "reminderDelay": 3,
+      "reminderFrequency": 7,
+      "expirationDays": 45,
+      "expirationWarning": 7
+    },
+    "emailSubject": "Contrato de Locação para Assinatura",
+    "emailBody": "Prezado(a), segue anexo o contrato de locação para sua revisão e assinatura. Por favor, assine digitalmente e retorne."
+  }'
+```
+
+```bash cURL (Formulário)
+curl -X POST "https://api.formsign.com.br/api/templates" \
+  -H "Authorization: Bearer <TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "templateName": "Cadastro de Cliente Pessoa Jurídica",
+    "templateDescription": "Formulário para cadastro completo de clientes PJ",
+    "submissionType": "form",
+    "formSettings": {
+      "numberOfColumns": 2,
+      "view": "modern"
+    },
+    "fields": [
+      {
+        "type": "text",
+        "identifier": "razao_social",
+        "name": "Razão Social",
+        "required": true,
+        "placeholder": "Empresa Ltda",
+        "x": 0,
+        "y": 0,
+        "w": 50,
+        "h": 8
+      },
+      {
+        "type": "text",
+        "identifier": "cnpj",
+        "name": "CNPJ",
+        "required": true,
+        "placeholder": "00.000.000/0000-00",
+        "validationType": "cnpj",
+        "x": 50,
+        "y": 0,
+        "w": 50,
+        "h": 8
+      },
+      {
+        "type": "text",
+        "identifier": "email_comercial",
+        "name": "Email Comercial",
+        "required": true,
+        "placeholder": "comercial@empresa.com.br",
+        "validationType": "email",
+        "x": 0,
+        "y": 15,
+        "w": 100,
+        "h": 8
+      },
+      {
+        "type": "text",
+        "identifier": "telefone",
+        "name": "Telefone",
+        "required": true,
+        "placeholder": "(11) 99999-9999",
+        "validationType": "phone",
+        "x": 0,
+        "y": 30,
+        "w": 50,
+        "h": 8
+      },
+      {
+        "type": "radio",
+        "identifier": "porte_empresa",
+        "name": "Porte da Empresa",
+        "required": true,
+        "x": 50,
+        "y": 30,
+        "w": 50,
+        "h": 20,
+        "options": [
+          {
+            "value": "micro",
+            "x": 50,
+            "y": 32,
+            "w": 20,
+            "h": 5
+          },
+          {
+            "value": "pequena",
+            "x": 50,
+            "y": 37,
+            "w": 20,
+            "h": 5
+          },
+          {
+            "value": "media",
+            "x": 50,
+            "y": 42,
+            "w": 20,
+            "h": 5
+          },
+          {
+            "value": "grande",
+            "x": 50,
+            "y": 47,
+            "w": 20,
+            "h": 5
+          }
+        ]
+      }
+    ],
+    "advancedOptions": {
+      "autoReminders": true,
+      "reminderDelay": 1,
+      "reminderFrequency": 3,
+      "expirationDays": 15,
+      "expirationWarning": 3
+    }
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.formsign.com.br/api/templates', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer <TOKEN>',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    templateName: 'Contrato de Prestação de Serviços',
+    templateDescription: 'Template para contratos de prestação de serviços gerais',
+    submissionType: 'document',
+    s3Key: 'documents/usr_abc123/contract_services.pdf',
+    documentSettings: {
+      documentName: 'contrato_servicos.pdf',
+      documentSizeMB: '1.2',
+      fileHash: 'sha256:x9y8z7w6v5u4t3s2r1...'
+    },
+    fields: [
+      {
+        type: 'signature',
+        identifier: 'assinatura_contratante',
+        name: 'Assinatura do Contratante',
+        required: true,
+        x: 20,
+        y: 80,
+        w: 30,
+        h: 12,
+        pageNumber: 2,
+        recipientRole: 'contractor'
+      },
+      {
+        type: 'signature',
+        identifier: 'assinatura_contratado',
+        name: 'Assinatura do Contratado',
+        required: true,
+        x: 60,
+        y: 80,
+        w: 30,
+        h: 12,
+        pageNumber: 2,
+        recipientRole: 'service_provider'
+      },
+      {
+        type: 'date',
+        identifier: 'data_inicio_servicos',
+        name: 'Data de Início dos Serviços',
+        required: true,
+        x: 30,
+        y: 35,
+        w: 20,
+        h: 6,
+        pageNumber: 1
+      },
+      {
+        type: 'text',
+        identifier: 'valor_servico',
+        name: 'Valor Total do Serviço',
+        required: true,
+        x: 60,
+        y: 50,
+        w: 25,
+        h: 6,
+        pageNumber: 1,
+        placeholder: 'R$ 0,00',
+        validationType: 'currency'
+      }
+    ],
+    advancedOptions: {
+      autoReminders: true,
+      reminderDelay: 2,
+      reminderFrequency: 5,
+      expirationDays: 30,
+      expirationWarning: 5
+    },
+    emailSubject: 'Contrato de Prestação de Serviços - Assinatura Necessária',
+    emailBody: 'Prezado(a), anexo o contrato de prestação de serviços. Favor revisar e assinar digitalmente.'
+  })
+});
+
+const result = await response.json();
+console.log('Template criado:', result.dados.templateId);
+```
+
+```python Python
+import requests
+
+# Template de documento
+payload_document = {
+    "templateName": "NDA - Acordo de Confidencialidade",
+    "templateDescription": "Template padrão para acordos de confidencialidade entre empresas",
+    "submissionType": "document",
+    "s3Key": "documents/usr_abc123/nda_template.pdf",
+    "documentSettings": {
+        "documentName": "acordo_confidencialidade.pdf",
+        "documentSizeMB": "0.6",
+        "fileHash": "sha256:f5e4d3c2b1a0987654..."
+    },
+    "fields": [
+        {
+            "type": "signature",
+            "identifier": "assinatura_empresa_a",
+            "name": "Assinatura Empresa A",
+            "required": True,
+            "x": 25,
+            "y": 85,
+            "w": 20,
+            "h": 8,
+            "pageNumber": 2,
+            "recipientRole": "company_a"
+        },
+        {
+            "type": "signature", 
+            "identifier": "assinatura_empresa_b",
+            "name": "Assinatura Empresa B",
+            "required": True,
+            "x": 65,
+            "y": 85,
+            "w": 20,
+            "h": 8,
+            "pageNumber": 2,
+            "recipientRole": "company_b"
+        },
+        {
+            "type": "text",
+            "identifier": "nome_projeto",
+            "name": "Nome do Projeto",
+            "required": True,
+            "x": 40,
+            "y": 20,
+            "w": 35,
+            "h": 6,
+            "pageNumber": 1,
+            "placeholder": "Digite o nome do projeto"
+        },
+        {
+            "type": "date",
+            "identifier": "data_validade",
+            "name": "Data de Validade do NDA",
+            "required": True,
+            "x": 60,
+            "y": 45,
+            "w": 25,
+            "h": 6,
+            "pageNumber": 1
+        }
+    ],
+    "advancedOptions": {
+        "autoReminders": True,
+        "reminderDelay": 1,
+        "reminderFrequency": 2,
+        "expirationDays": 7,
+        "expirationWarning": 1
+    },
+    "emailSubject": "NDA - Acordo de Confidencialidade para Assinatura",
+    "emailBody": "Segue anexo o Acordo de Confidencialidade (NDA). Por favor, revise e assine digitalmente."
+}
+
+response = requests.post(
+    'https://api.formsign.com.br/api/templates',
+    json=payload_document,
+    headers={'Authorization': 'Bearer <TOKEN>'}
+)
+
+result = response.json()
+print(f"Template criado: {result['dados']['templateId']}")
+print(f"Status: {result['dados']['status']}")
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    // Template de formulário
+    payload := map[string]interface{}{
+        "templateName": "Pesquisa de Satisfação do Cliente",
+        "templateDescription": "Formulário para avaliar a satisfação dos clientes com nossos serviços",
+        "submissionType": "form",
+        "formSettings": map[string]interface{}{
+            "numberOfColumns": 1,
+            "view": "clean",
+        },
+        "fields": []map[string]interface{}{
+            {
+                "type": "text",
+                "identifier": "nome_cliente",
+                "name": "Nome Completo",
+                "required": true,
+                "x": 0,
+                "y": 0,
+                "w": 100,
+                "h": 8,
+                "placeholder": "Digite seu nome completo",
+            },
+            {
+                "type": "text",
+                "identifier": "email_cliente",
+                "name": "Email",
+                "required": true,
+                "x": 0,
+                "y": 15,
+                "w": 100,
+                "h": 8,
+                "placeholder": "seu.email@exemplo.com",
+                "validationType": "email",
+            },
+            {
+                "type": "radio",
+                "identifier": "avaliacao_geral",
+                "name": "Como você avalia nossos serviços?",
+                "required": true,
+                "x": 0,
+                "y": 30,
+                "w": 100,
+                "h": 25,
+                "options": []map[string]interface{}{
+                    {
+                        "value": "excelente",
+                        "x": 0,
+                        "y": 32,
+                        "w": 100,
+                        "h": 5,
+                    },
+                    {
+                        "value": "bom",
+                        "x": 0,
+                        "y": 37,
+                        "w": 100,
+                        "h": 5,
+                    },
+                    {
+                        "value": "regular",
+                        "x": 0,
+                        "y": 42,
+                        "w": 100,
+                        "h": 5,
+                    },
+                    {
+                        "value": "ruim",
+                        "x": 0,
+                        "y": 47,
+                        "w": 100,
+                        "h": 5,
+                    },
+                },
+            },
+            {
+                "type": "checkbox",
+                "identifier": "aspectos_positivos",
+                "name": "Quais aspectos você considera positivos? (marque todos que se aplicam)",
+                "required": false,
+                "x": 0,
+                "y": 60,
+                "w": 100,
+                "h": 20,
+                "multipleSelection": true,
+                "options": []map[string]interface{}{
+                    {
+                        "value": "atendimento",
+                        "x": 0,
+                        "y": 62,
+                        "w": 50,
+                        "h": 4,
+                    },
+                    {
+                        "value": "qualidade",
+                        "x": 50,
+                        "y": 62,
+                        "w": 50,
+                        "h": 4,
+                    },
+                    {
+                        "value": "rapidez",
+                        "x": 0,
+                        "y": 66,
+                        "w": 50,
+                        "h": 4,
+                    },
+                    {
+                        "value": "preco",
+                        "x": 50,
+                        "y": 66,
+                        "w": 50,
+                        "h": 4,
+                    },
+                },
+            },
+        },
+        "advancedOptions": map[string]interface{}{
+            "autoReminders": true,
+            "reminderDelay": 1,
+            "reminderFrequency": 3,
+            "expirationDays": 10,
+            "expirationWarning": 2,
+        },
+        "emailSubject": "Pesquisa de Satisfação - Sua opinião é importante!",
+        "emailBody": "Olá! Sua opinião é muito importante para nós. Por favor, responda nossa pesquisa de satisfação.",
+    }
+    
+    jsonData, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://api.formsign.com.br/api/templates", bytes.NewBuffer(jsonData))
+    req.Header.Set("Authorization", "Bearer <TOKEN>")
+    req.Header.Set("Content-Type", "application/json")
+    
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+    
+    body, _ := io.ReadAll(resp.Body)
+    
+    var result map[string]interface{}
+    json.Unmarshal(body, &result)
+    
+    fmt.Printf("Template criado: %v\n", result["dados"].(map[string]interface{})["templateId"])
+}
+```
+
+</CodeGroup>
+</RequestExample>
+
+### Parâmetros (Body)
+
+<ParamField body="templateName" type="string" required>
+Nome descritivo do template.
+</ParamField>
+
+<ParamField body="templateDescription" type="string">
+Descrição detalhada do template (opcional).
+</ParamField>
+
+<ParamField body="submissionType" type="string" required>
+Tipo de submissão: "document" ou "form".
+</ParamField>
+
+<ParamField body="s3Key" type="string">
+Chave S3 do documento (obrigatório para submissionType "document").
+</ParamField>
+
+<ParamField body="formSettings" type="object">
+Configurações do formulário (obrigatório para submissionType "form").
+</ParamField>
+
+<ParamField body="documentSettings" type="object">
+Configurações do documento (obrigatório para submissionType "document").
+</ParamField>
+
+<ParamField body="fields" type="array" required>
+Array de campos do template.
+</ParamField>
+
+<ParamField body="advancedOptions" type="object">
+Opções avançadas de entrega e lembretes.
+</ParamField>
+
+<ParamField body="emailSubject" type="string">
+Assunto personalizado do email (opcional).
+</ParamField>
+
+<ParamField body="emailBody" type="string">
+Corpo personalizado do email (opcional).
+</ParamField>
+
+### Expandables
+
+<Expandable title="formSettings (para submissionType: form)">
+  <ParamField body="formSettings.numberOfColumns" type="integer" required>Número de colunas do layout (1-4).</ParamField>
+  <ParamField body="formSettings.view" type="string" required>Estilo visual: "modern", "clean", "classic".</ParamField>
+</Expandable>
+
+<Expandable title="documentSettings (para submissionType: document)">
+  <ParamField body="documentSettings.documentName" type="string" required>Nome do arquivo do documento.</ParamField>
+  <ParamField body="documentSettings.documentSizeMB" type="string">Tamanho do documento em MB.</ParamField>
+  <ParamField body="documentSettings.fileHash" type="string" required>Hash SHA256 do arquivo para validação.</ParamField>
+</Expandable>
+
+<Expandable title="fields[] (Campos)">
+  <ParamField body="fields[].type" type="string" required>Tipo: "signature", "text", "date", "checkbox", "radio".</ParamField>
+  <ParamField body="fields[].identifier" type="string" required>Identificador único do campo.</ParamField>
+  <ParamField body="fields[].name" type="string">Nome/label do campo.</ParamField>
+  <ParamField body="fields[].required" type="boolean" required>Se o campo é obrigatório.</ParamField>
+  <ParamField body="fields[].x" type="number" required>Posição X (% da largura).</ParamField>
+  <ParamField body="fields[].y" type="number" required>Posição Y (% da altura).</ParamField>
+  <ParamField body="fields[].w" type="number" required>Largura (% da largura total).</ParamField>
+  <ParamField body="fields[].h" type="number" required>Altura (% da altura total).</ParamField>
+  <ParamField body="fields[].pageNumber" type="integer">Número da página (para documentos).</ParamField>
+  <ParamField body="fields[].placeholder" type="string">Texto de placeholder.</ParamField>
+  <ParamField body="fields[].validationType" type="string">Tipo de validação: "email", "phone", "cnpj", "cpf", "currency".</ParamField>
+  <ParamField body="fields[].recipientRole" type="string">Papel do destinatário responsável por este campo.</ParamField>
+  <ParamField body="fields[].options" type="array">Opções para campos radio/checkbox.</ParamField>
+  <ParamField body="fields[].multipleSelection" type="boolean">Permite seleção múltipla (checkbox).</ParamField>
+</Expandable>
+
+<Expandable title="advancedOptions (Opções Avançadas)">
+  <ParamField body="advancedOptions.autoReminders" type="boolean">Enviar lembretes automáticos.</ParamField>
+  <ParamField body="advancedOptions.reminderDelay" type="integer">Atraso inicial para lembretes (dias).</ParamField>
+  <ParamField body="advancedOptions.reminderFrequency" type="integer">Frequência dos lembretes (dias).</ParamField>
+  <ParamField body="advancedOptions.expirationDays" type="integer">Dias para expiração.</ParamField>
+  <ParamField body="advancedOptions.expirationWarning" type="integer">Aviso antes da expiração (dias).</ParamField>
+</Expandable>
+
+### Respostas
+
+<ResponseExample>
+
+```json 200 Sucesso
+{
+  "mensagem": "Dados salvos com sucesso",
+  "dados": {
+    "templateId": "tpl_abc123456789",
+    "templateName": "Contrato de Locação Residencial",
+    "status": "created",
+    "s3Key": "documents/usr_abc123/contract_template_locacao.pdf",
+    "creationDate": "2024-08-15T14:30:00Z"
+  }
+}
+```
+
+```json 400 Dados Inválidos
+{
+  "error": "FormSettings é obrigatório para submissionType 'form'"
+}
+```
+
+```json 400 S3Key Ausente
+{
+  "error": "S3Key é obrigatório para submissionType 'document'"
+}
+```
+
+```json 401 Não Autorizado
+{
+  "error": "Unauthorized"
+}
+```
+
+```json 500 Erro Interno
+{
+  "error": "Falha ao criar template"
+}
+```
+
+</ResponseExample>
+
+### Validações
+
+- **submissionType**: Deve ser "document" ou "form"
+- **Campos obrigatórios por tipo**:
+  - **document**: `s3Key` e `documentSettings` são obrigatórios
+  - **form**: `formSettings` é obrigatório
+- **fields**: Pelo menos um campo é obrigatório
+- **Posicionamento**: Coordenadas x,y,w,h devem ser entre 0-100 (percentuais)
+
+<Note>
+**Tipos de Campo**: 
+- **signature**: Assinatura digital
+- **text**: Texto livre ou validado
+- **date**: Seletor de data
+- **checkbox**: Múltipla escolha
+- **radio**: Escolha única
+</Note>
+
+<Tip>
+**Reutilização**: Templates criados podem ser usados no endpoint `/api/envelopes/send/template` para envio rápido de envelopes pré-configurados.
+</Tip>
