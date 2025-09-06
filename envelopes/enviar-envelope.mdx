@@ -108,7 +108,40 @@ curl -X POST "https://api.formsign.com.br/api/envelopes/send" \
 
 </RequestExample>
 
-## Exemplos Adicionais
+<ResponseExample>
+
+```json 200 Sucesso
+{
+  "message": "Success",
+  "envelopeId": "env_abc123456789"
+}
+```
+
+```json 400 Dados Inválidos
+{
+  "error": "Pelo menos um recipient é obrigatório"
+}
+```
+
+```json 400 S3Key Ausente
+{
+  "error": "S3Key é obrigatório para submissionType 'document'"
+}
+```
+
+```json 401 Não Autorizado
+{
+  "error": "Unauthorized"
+}
+```
+
+```json 500 Erro no Envio
+{
+  "error": "Falha ao enviar envelope"
+}
+```
+
+</ResponseExample>
 
 <CodeGroup>
 
@@ -292,43 +325,6 @@ print(f"Envelope enviado: {result['envelopeId']}")
   <ParamField body="advancedOptions.expirationDays" type="integer">Dias para expiração.</ParamField>
   <ParamField body="advancedOptions.expirationWarning" type="integer">Aviso antes da expiração (dias).</ParamField>
 </Expandable>
-
-### Respostas
-
-<ResponseExample>
-
-```json 200 Sucesso
-{
-  "message": "Success",
-  "envelopeId": "env_abc123456789"
-}
-```
-
-```json 400 Dados Inválidos
-{
-  "error": "Pelo menos um recipient é obrigatório"
-}
-```
-
-```json 400 S3Key Ausente
-{
-  "error": "S3Key é obrigatório para submissionType 'document'"
-}
-```
-
-```json 401 Não Autorizado
-{
-  "error": "Unauthorized"
-}
-```
-
-```json 500 Erro no Envio
-{
-  "error": "Falha ao enviar envelope"
-}
-```
-
-</ResponseExample>
 
 ### Validações
 
