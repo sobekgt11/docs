@@ -24,22 +24,15 @@
         "groups": [
           { "group": "Introdução", "pages": ["introducao/referencia"] },
           { "group": "Autenticação", "pages": ["autenticacao/referencia", "autenticacao/token"] },
-          { "group": "Envelopes", "pages": [
+          { "group": "Envelopes Base64", "pages": [
             "envelopes/referencia",
-            "envelopes/listar",
-            "envelopes/detalhes",
-            "envelopes/historico",
-            "envelopes/enviar",
-            "envelopes/reenviar",
-            "envelopes/anular"
+            "envelopes/enviar"
           ] },
-          { "group": "Templates", "pages": [
+          { "group": "Templates Base64", "pages": [
             "templates/referencia",
-            "templates/criar",
-            "templates/listar",
-            "templates/obter",
-            "templates/atualizar"
-          ] }
+            "templates/criar"
+          ] },
+          { "group": "Exemplos", "pages": ["examples"] }
         ]
       }
     ]

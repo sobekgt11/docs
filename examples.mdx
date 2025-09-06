@@ -1,61 +1,399 @@
 ---
-title: Exemplos
-description: Exemplos cURL/JS/Go para fluxos comuns.
+title: Exemplos Práticos
+description: Exemplos completos de uso das APIs Base64 em diferentes linguagens.
+icon: code
 ---
 
-## Fluxo completo: obter token → enviar envelope → consultar status
+Aqui estão exemplos práticos de como usar as APIs Base64 do FormSign em diferentes linguagens de programação.
 
-<CodeGroup>
+## Fluxo Completo: Autenticação + Envelope
 
-```bash cURL
-TOKEN=$(curl -s -X POST \
-  -H "Authorization: Basic $(echo -n 'CLIENT_ID:CLIENT_SECRET' | base64)" \
-  https://api.formsign.com.br/api/token | jq -r .access_token)
+### JavaScript/Node.js
 
-curl -X POST "https://api.formsign.com.br/api/envelopes/send" \
-  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
-  -d '{"subject":"Assine","message":"Olá","submissionType":"document","documentSettings":{"documentName":"contrato.pdf","fileHash":"<hash>"},"s3Key":"uploads/envelopes/contrato.pdf","fields":[{"type":"signature","identifier":"assinatura","required":true,"x":70,"y":90,"w":20,"h":8,"pageNumber":1}],"recipients":[{"email":"cliente@exemplo.com","name":"Cliente","signatureType":"draw","role":"signer"}]}'
+```javascript
+const fs = require('fs');
+const fetch = require('node-fetch'); // npm install node-fetch
 
-curl -X GET "https://api.formsign.com.br/api/envelopes/<ENVELOPE_ID>" \
-  -H "Authorization: Bearer $TOKEN"
+async function enviarEnvelopeBase64() {
+  // 1. Obter token de autenticação
+  const clientId = 'your-client-id';
+  const clientSecret = 'your-client-secret';
+  const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+  
+  const tokenResponse = await fetch('https://api.formsign.com.br/api/token', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Basic ${credentials}`
+    }
+  });
+  
+  const tokenData = await tokenResponse.json();
+  const token = tokenData.access_token;
+  
+  // 2. Ler arquivo PDF e converter para base64
+  const pdfBuffer = fs.readFileSync('contrato.pdf');
+  const pdfBase64 = pdfBuffer.toString('base64');
+  
+  // 3. Enviar envelope com base64
+  const envelopeData = {
+    subject: 'Contrato para Assinatura',
+    message: 'Por favor, revise e assine o documento anexo.',
+    submissionType: 'document',
+    base64Document: pdfBase64,
+    documentName: 'contrato.pdf',
+    fields: [
+      {
+        type: 'signature',
+        identifier: 'assinatura_cliente',
+        required: true,
+        x: 70,
+        y: 90,
+        w: 20,
+        h: 8,
+        pageNumber: 1
+      }
+    ],
+    recipients: [
+      {
+        email: 'cliente@example.com',
+        name: 'João Silva',
+        signatureType: 'draw',
+        role: 'signer'
+      }
+    ]
+  };
+  
+  const envelopeResponse = await fetch('https://api.formsign.com.br/api/envelopes/send/base64', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(envelopeData)
+  });
+  
+  const result = await envelopeResponse.json();
+  console.log('✅ Envelope enviado! ID:', result.envelopeId);
+  
+  return result.envelopeId;
+}
+
+enviarEnvelopeBase64().catch(console.error);
 ```
 
-```javascript Node.js
-import fetch from 'node-fetch';
+### Python
 
-const basic = Buffer.from('CLIENT_ID:CLIENT_SECRET').toString('base64');
-const tokenResp = await fetch('https://SEU_HOST/api/token', {
-  method: 'POST',
-  headers: { Authorization: `Basic ${basic}` }
-});
-const { access_token } = await tokenResp.json();
+```python
+import requests
+import base64
+import os
 
-const resp = await fetch('https://SEU_HOST/api/envelopes', {
-  headers: { Authorization: `Bearer ${access_token}` }
-});
-console.log(await resp.json());
+def enviar_envelope_base64():
+    # 1. Obter token de autenticação
+    client_id = os.getenv('FORMSIGN_CLIENT_ID')
+    client_secret = os.getenv('FORMSIGN_CLIENT_SECRET')
+    
+    credentials = base64.b64encode(f"{client_id}:{client_secret}".encode()).decode()
+    
+    token_response = requests.post(
+        'https://api.formsign.com.br/api/token',
+        headers={'Authorization': f'Basic {credentials}'}
+    )
+    
+    token = token_response.json()['access_token']
+    
+    # 2. Ler arquivo PDF e converter para base64
+    with open('contrato.pdf', 'rb') as pdf_file:
+        pdf_base64 = base64.b64encode(pdf_file.read()).decode('utf-8')
+    
+    # 3. Enviar envelope
+    envelope_data = {
+        'subject': 'Contrato para Assinatura',
+        'message': 'Por favor, revise e assine o documento anexo.',
+        'submissionType': 'document',
+        'base64Document': pdf_base64,
+        'documentName': 'contrato.pdf',
+        'fields': [
+            {
+                'type': 'signature',
+                'identifier': 'assinatura_cliente',
+                'required': True,
+                'x': 70,
+                'y': 90,
+                'w': 20,
+                'h': 8,
+                'pageNumber': 1
+            }
+        ],
+        'recipients': [
+            {
+                'email': 'cliente@example.com',
+                'name': 'João Silva',
+                'signatureType': 'draw',
+                'role': 'signer'
+            }
+        ]
+    }
+    
+    envelope_response = requests.post(
+        'https://api.formsign.com.br/api/envelopes/send/base64',
+        json=envelope_data,
+        headers={'Authorization': f'Bearer {token}'}
+    )
+    
+    result = envelope_response.json()
+    print(f"✅ Envelope enviado! ID: {result['envelopeId']}")
+    
+    return result['envelopeId']
+
+if __name__ == "__main__":
+    enviar_envelope_base64()
 ```
 
-```go Go
+### Go
+
+```go
 package main
 
 import (
-  "encoding/base64"
-  "fmt"
-  "io"
-  "net/http"
+    "bytes"
+    "encoding/base64"
+    "encoding/json"
+    "fmt"
+    "io/ioutil"
+    "log"
+    "net/http"
+    "os"
 )
 
+type TokenResponse struct {
+    AccessToken string `json:"access_token"`
+    TokenType   string `json:"token_type"`
+    ExpiresIn   int    `json:"expires_in"`
+}
+
+type EnvelopeResponse struct {
+    Message    string `json:"message"`
+    EnvelopeID string `json:"envelopeId"`
+}
+
+func getToken(clientID, clientSecret string) (string, error) {
+    credentials := base64.StdEncoding.EncodeToString([]byte(clientID + ":" + clientSecret))
+    
+    req, err := http.NewRequest("POST", "https://api.formsign.com.br/api/token", nil)
+    if err != nil {
+        return "", err
+    }
+    
+    req.Header.Set("Authorization", "Basic "+credentials)
+    
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        return "", err
+    }
+    defer resp.Body.Close()
+    
+    var tokenResp TokenResponse
+    if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
+        return "", err
+    }
+    
+    return tokenResp.AccessToken, nil
+}
+
+func sendEnvelope(token, pdfBase64 string) (string, error) {
+    envelope := map[string]interface{}{
+        "subject": "Contrato para Assinatura",
+        "message": "Por favor, revise e assine o documento anexo.",
+        "submissionType": "document",
+        "base64Document": pdfBase64,
+        "documentName": "contrato.pdf",
+        "fields": []map[string]interface{}{
+            {
+                "type": "signature",
+                "identifier": "assinatura_cliente",
+                "required": true,
+                "x": 70,
+                "y": 90,
+                "w": 20,
+                "h": 8,
+                "pageNumber": 1,
+            },
+        },
+        "recipients": []map[string]interface{}{
+            {
+                "email": "cliente@example.com",
+                "name": "João Silva",
+                "signatureType": "draw",
+                "role": "signer",
+            },
+        },
+    }
+    
+    jsonData, err := json.Marshal(envelope)
+    if err != nil {
+        return "", err
+    }
+    
+    req, err := http.NewRequest("POST", "https://api.formsign.com.br/api/envelopes/send/base64", bytes.NewBuffer(jsonData))
+    if err != nil {
+        return "", err
+    }
+    
+    req.Header.Set("Authorization", "Bearer "+token)
+    req.Header.Set("Content-Type", "application/json")
+    
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        return "", err
+    }
+    defer resp.Body.Close()
+    
+    var envelopeResp EnvelopeResponse
+    if err := json.NewDecoder(resp.Body).Decode(&envelopeResp); err != nil {
+        return "", err
+    }
+    
+    return envelopeResp.EnvelopeID, nil
+}
+
 func main() {
-  basic := base64.StdEncoding.EncodeToString([]byte("CLIENT_ID:CLIENT_SECRET"))
-  req, _ := http.NewRequest("POST", "https://SEU_HOST/api/token", nil)
-  req.Header.Set("Authorization", "Basic "+basic)
-  res, _ := http.DefaultClient.Do(req)
-  body, _ := io.ReadAll(res.Body)
-  fmt.Println(string(body))
+    // 1. Obter token
+    clientID := os.Getenv("FORMSIGN_CLIENT_ID")
+    clientSecret := os.Getenv("FORMSIGN_CLIENT_SECRET")
+    
+    token, err := getToken(clientID, clientSecret)
+    if err != nil {
+        log.Fatal("Erro ao obter token:", err)
+    }
+    
+    // 2. Ler arquivo PDF
+    pdfBytes, err := ioutil.ReadFile("contrato.pdf")
+    if err != nil {
+        log.Fatal("Erro ao ler PDF:", err)
+    }
+    
+    // 3. Converter para base64
+    pdfBase64 := base64.StdEncoding.EncodeToString(pdfBytes)
+    
+    // 4. Enviar envelope
+    envelopeID, err := sendEnvelope(token, pdfBase64)
+    if err != nil {
+        log.Fatal("Erro ao enviar envelope:", err)
+    }
+    
+    fmt.Printf("✅ Envelope enviado! ID: %s\n", envelopeID)
 }
 ```
 
-</CodeGroup>
+### cURL (Bash)
 
+```bash
+#!/bin/bash
 
+# Configurações
+CLIENT_ID="your-client-id"
+CLIENT_SECRET="your-client-secret"
+PDF_FILE="contrato.pdf"
+RECIPIENT_EMAIL="cliente@example.com"
+RECIPIENT_NAME="João Silva"
+
+# 1. Obter token
+echo "🔐 Obtendo token de autenticação..."
+TOKEN_RESPONSE=$(curl -s -X POST "https://api.formsign.com.br/api/token" \
+  -H "Authorization: Basic $(echo -n "$CLIENT_ID:$CLIENT_SECRET" | base64)")
+
+ACCESS_TOKEN=$(echo "$TOKEN_RESPONSE" | grep -o '"access_token":"[^"]*' | cut -d'"' -f4)
+
+if [ -z "$ACCESS_TOKEN" ]; then
+  echo "❌ Erro ao obter token"
+  exit 1
+fi
+
+echo "✅ Token obtido com sucesso"
+
+# 2. Converter PDF para base64
+echo "📄 Convertendo PDF para base64..."
+if [ ! -f "$PDF_FILE" ]; then
+  echo "❌ Arquivo $PDF_FILE não encontrado"
+  exit 1
+fi
+
+PDF_BASE64=$(base64 -w 0 "$PDF_FILE")
+echo "✅ PDF convertido para base64"
+
+# 3. Enviar envelope
+echo "📧 Enviando envelope..."
+ENVELOPE_RESPONSE=$(curl -s -X POST "https://api.formsign.com.br/api/envelopes/send/base64" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"subject\": \"Contrato para Assinatura\",
+    \"message\": \"Por favor, revise e assine o documento anexo.\",
+    \"submissionType\": \"document\",
+    \"base64Document\": \"$PDF_BASE64\",
+    \"documentName\": \"$PDF_FILE\",
+    \"fields\": [
+      {
+        \"type\": \"signature\",
+        \"identifier\": \"assinatura_cliente\",
+        \"required\": true,
+        \"x\": 70,
+        \"y\": 90,
+        \"w\": 20,
+        \"h\": 8,
+        \"pageNumber\": 1
+      }
+    ],
+    \"recipients\": [
+      {
+        \"email\": \"$RECIPIENT_EMAIL\",
+        \"name\": \"$RECIPIENT_NAME\",
+        \"signatureType\": \"draw\",
+        \"role\": \"signer\"
+      }
+    ]
+  }")
+
+ENVELOPE_ID=$(echo "$ENVELOPE_RESPONSE" | grep -o '"envelopeId":"[^"]*' | cut -d'"' -f4)
+
+if [ -z "$ENVELOPE_ID" ]; then
+  echo "❌ Erro ao enviar envelope:"
+  echo "$ENVELOPE_RESPONSE"
+  exit 1
+fi
+
+echo "✅ Envelope enviado com sucesso! ID: $ENVELOPE_ID"
+```
+
+## Preparando o Base64
+
+```bash
+# Linux/macOS
+base64 -w 0 documento.pdf
+
+# Windows PowerShell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("documento.pdf"))
+```
+
+```python
+# Python
+import base64
+with open('documento.pdf', 'rb') as f:
+    pdf_base64 = base64.b64encode(f.read()).decode('utf-8')
+```
+
+```javascript
+// Node.js
+const fs = require('fs');
+const pdfBase64 = fs.readFileSync('documento.pdf').toString('base64');
+```
+
+```go
+// Go
+import "encoding/base64"
+pdfBytes, _ := ioutil.ReadFile("documento.pdf")
+pdfBase64 := base64.StdEncoding.EncodeToString(pdfBytes)
+```
