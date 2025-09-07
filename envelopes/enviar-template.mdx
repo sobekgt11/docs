@@ -6,7 +6,7 @@ openapi: 'POST /api/envelopes/send/template'
 
 Este endpoint permite criar e enviar envelopes baseados em templates criados previamente, com possibilidade de sobrescrever dados específicos do template.
 
-<RequestExample>
+<CodeGroup dropdown>
 
 ```bash cURL
 curl -X POST "https://api.formsign.com.br/api/envelopes/send/template" \
@@ -77,7 +77,7 @@ result = response.json()
 print(f"Envelope ID: {result['envelopeId']}")
 ```
 
-</RequestExample>
+</CodeGroup>
 
 ### Parâmetros (Body)
 
