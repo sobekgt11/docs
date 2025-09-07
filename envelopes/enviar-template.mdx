@@ -5,7 +5,7 @@ openapi: 'POST /api/envelopes/send/template'
 ---
 
 Este endpoint permite criar e enviar envelopes baseados em templates criados previamente, com possibilidade de sobrescrever dados específicos do template.
-
+<RequestExample>
 <CodeGroup dropdown>
 
 ```bash cURL
@@ -78,6 +78,8 @@ print(f"Envelope ID: {result['envelopeId']}")
 ```
 
 </CodeGroup>
+
+</RequestExample>
 
 ### Parâmetros (Body)
 
