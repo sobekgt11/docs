@@ -7,7 +7,7 @@
     "light": "#38bdf8",
     "dark": "#0284c7"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/favicon.png",
   "api": {
     "baseUrl": "https://api.formsign.com.br",
     "auth": {
@@ -26,26 +26,21 @@
           { "group": "Autenticação", "pages": ["autenticacao/referencia", "autenticacao/token"] },
           { "group": "Envelopes", "pages": [
             "envelopes/referencia",
-            "envelopes/enviar",
+            "envelopes/enviar-B64",
             "envelopes/enviar-template",
             "envelopes/listar",
             "envelopes/obter-por-id",
             "envelopes/reenviar",
             "envelopes/cancelar",
             "envelopes/historico"
-          ] },
-          { "group": "Templates Base64", "pages": [
-            "templates/referencia",
-            "templates/criar"
-          ] },
-          { "group": "Exemplos", "pages": ["examples"] }
+          ] }
         ]
       }
     ]
   },
   "logo": {
-    "light": "/logo/logo.png",
-    "dark": "/logo/logo.png",
+    "light": "/logo/logo-light.png",
+    "dark": "/logo/logo-dark.png",
     "href": "https://formsign.com.br"
   },
   "navbar": {
@@ -59,10 +54,8 @@
   "contextual": {
     "options": [
      "copy",
-     "view",
      "chatgpt",
      "claude",
-     "perplexity",
      "mcp",
      "cursor",
      "vscode"

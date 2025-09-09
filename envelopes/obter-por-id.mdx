@@ -6,14 +6,12 @@ openapi: 'GET /api/envelopes/{envelopeId}'
 
 Este endpoint retorna todos os detalhes de um envelope específico, incluindo campos, destinatários, histórico e configurações.
 
-<RequestExample>
+<RequestExample dropdown>
 
 ```bash cURL
 curl -X GET "https://api.formsign.com.br/api/envelopes/env_abc123456789" \
   -H "Authorization: Bearer <TOKEN>"
 ```
-
-<CodeGroup>
 
 ```javascript JavaScript
 const envelopeId = 'env_abc123456789';
@@ -128,119 +126,7 @@ else:
     print(response.json())
 ```
 
-```go Go
-package main
-
-import (
-    "encoding/json"
-    "fmt"
-    "io"
-    "net/http"
-)
-
-func main() {
-    envelopeID := "env_abc123456789"
-    url := fmt.Sprintf("https://api.formsign.com.br/api/envelopes/%s", envelopeID)
-    
-    req, _ := http.NewRequest("GET", url, nil)
-    req.Header.Set("Authorization", "Bearer <TOKEN>")
-    
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    if err != nil {
-        panic(err)
-    }
-    defer resp.Body.Close()
-    
-    body, _ := io.ReadAll(resp.Body)
-    
-    if resp.StatusCode == 200 {
-        var envelope map[string]interface{}
-        json.Unmarshal(body, &envelope)
-        
-        fmt.Println("=== DETALHES DO ENVELOPE ===")
-        fmt.Printf("Assunto: %v\n", envelope["subject"])
-        fmt.Printf("Status: %v\n", envelope["status"])
-        fmt.Printf("Tipo: %v\n", envelope["submissionType"])
-        fmt.Printf("Criado em: %v\n", envelope["creationDate"])
-        fmt.Printf("ID do Usuário: %v\n", envelope["userId"])
-        
-        if envelope["templateId"] != nil {
-            fmt.Printf("Template ID: %v\n", envelope["templateId"])
-        }
-        
-        if envelope["sentDate"] != nil {
-            fmt.Printf("Enviado em: %v\n", envelope["sentDate"])
-        }
-        
-        if envelope["completedDate"] != nil {
-            fmt.Printf("Completado em: %v\n", envelope["completedDate"])
-        }
-        
-        fmt.Println("\n=== REMETENTE ===")
-        sender := envelope["sender"].(map[string]interface{})
-        fmt.Printf("Nome: %v\n", sender["userName"])
-        fmt.Printf("Email: %v\n", sender["email"])
-        
-        fmt.Println("\n=== DESTINATÁRIOS ===")
-        recipients := envelope["recipients"].([]interface{})
-        for i, r := range recipients {
-            recipient := r.(map[string]interface{})
-            fmt.Printf("%d. %v (%v)\n", i+1, recipient["name"], recipient["email"])
-            fmt.Printf("   Status: %v | Papel: %v\n", recipient["status"], recipient["role"])
-            fmt.Printf("   Tipo de Assinatura: %v\n", recipient["signatureType"])
-            
-            if recipient["cpf"] != nil {
-                fmt.Printf("   CPF/CNPJ: %v\n", recipient["cpf"])
-            }
-            
-            if recipient["completedDate"] != nil {
-                fmt.Printf("   Assinado em: %v\n", recipient["completedDate"])
-            }
-            fmt.Println()
-        }
-        
-        fmt.Println("=== CAMPOS ===")
-        fields := envelope["fields"].([]interface{})
-        for _, f := range fields {
-            field := f.(map[string]interface{})
-            fieldName := field["identifier"]
-            if field["name"] != nil {
-                fieldName = field["name"]
-            }
-            
-            required := "opcional"
-            if field["required"].(bool) {
-                required = "obrigatório"
-            }
-            
-            fmt.Printf("- %v: %v (%v)\n", fieldName, field["type"], required)
-            fmt.Printf("  Posição: x=%.1f%%, y=%.1f%%, w=%.1f%%, h=%.1f%%\n", 
-                field["x"], field["y"], field["w"], field["h"])
-            
-            if field["pageNumber"] != nil {
-                fmt.Printf("  Página: %.0f\n", field["pageNumber"])
-            }
-        }
-        
-        if envelope["observers"] != nil {
-            observers := envelope["observers"].([]interface{})
-            if len(observers) > 0 {
-                fmt.Println("\n=== OBSERVADORES ===")
-                for _, o := range observers {
-                    observer := o.(map[string]interface{})
-                    fmt.Printf("- %v (%v)\n", observer["name"], observer["email"])
-                }
-            }
-        }
-        
-    } else {
-        fmt.Printf("Erro: %d\n", resp.StatusCode)
-        fmt.Println(string(body))
-    }
-}
-
-</CodeGroup>
+</RequestExample>
 
 ### Parâmetros (Path)
 

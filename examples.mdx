@@ -44,23 +44,47 @@ async function enviarEnvelopeBase64() {
     fields: [
       {
         type: 'signature',
+        name: 'Assinatura do Cliente',
         identifier: 'assinatura_cliente',
+        value: '',
+        required: true,
+        placeholder: 'Assinatura do destinatário',
+        x: 246,
+        y: 291,
+        w: 269,
+        h: 74,
+        pageNumber: 1,
+        recipientRole: 'signer'
+      },
+      {
+        type: 'date',
+        name: 'Data da Assinatura',
+        identifier: 'data_assinatura',
+        value: '',
         required: true,
         x: 70,
-        y: 90,
+        y: 80,
         w: 20,
-        h: 8,
-        pageNumber: 1
+        h: 6,
+        pageNumber: 1,
+        recipientRole: 'signer'
       }
     ],
     recipients: [
       {
         email: 'cliente@example.com',
         name: 'João Silva',
-        signatureType: 'draw',
+        signatureType: 'simple',
         role: 'signer'
       }
-    ]
+    ],
+    advancedOptions: {
+      autoReminders: true,
+      reminderDelay: 2,
+      reminderFrequency: 3,
+      expirationDays: 30,
+      expirationWarning: 5
+    }
   };
   
   const envelopeResponse = await fetch('https://api.formsign.com.br/api/envelopes/send/base64', {
@@ -116,23 +140,47 @@ def enviar_envelope_base64():
         'fields': [
             {
                 'type': 'signature',
+                'name': 'Assinatura do Cliente',
                 'identifier': 'assinatura_cliente',
+                'value': '',
+                'required': True,
+                'placeholder': 'Assinatura do destinatário',
+                'x': 246,
+                'y': 291,
+                'w': 269,
+                'h': 74,
+                'pageNumber': 1,
+                'recipientRole': 'signer'
+            },
+            {
+                'type': 'date',
+                'name': 'Data da Assinatura',
+                'identifier': 'data_assinatura',
+                'value': '',
                 'required': True,
                 'x': 70,
-                'y': 90,
+                'y': 80,
                 'w': 20,
-                'h': 8,
-                'pageNumber': 1
+                'h': 6,
+                'pageNumber': 1,
+                'recipientRole': 'signer'
             }
         ],
         'recipients': [
             {
                 'email': 'cliente@example.com',
                 'name': 'João Silva',
-                'signatureType': 'draw',
+                'signatureType': 'simple',
                 'role': 'signer'
             }
-        ]
+        ],
+        'advancedOptions': {
+            'autoReminders': True,
+            'reminderDelay': 2,
+            'reminderFrequency': 3,
+            'expirationDays': 30,
+            'expirationWarning': 5
+        }
     }
     
     envelope_response = requests.post(
@@ -212,22 +260,46 @@ func sendEnvelope(token, pdfBase64 string) (string, error) {
         "fields": []map[string]interface{}{
             {
                 "type": "signature",
+                "name": "Assinatura do Cliente",
                 "identifier": "assinatura_cliente",
+                "value": "",
+                "required": true,
+                "placeholder": "Assinatura do destinatário",
+                "x": 246,
+                "y": 291,
+                "w": 269,
+                "h": 74,
+                "pageNumber": 1,
+                "recipientRole": "signer",
+            },
+            {
+                "type": "date",
+                "name": "Data da Assinatura",
+                "identifier": "data_assinatura",
+                "value": "",
                 "required": true,
                 "x": 70,
-                "y": 90,
+                "y": 80,
                 "w": 20,
-                "h": 8,
+                "h": 6,
                 "pageNumber": 1,
+                "recipientRole": "signer",
             },
         },
         "recipients": []map[string]interface{}{
             {
                 "email": "cliente@example.com",
                 "name": "João Silva",
-                "signatureType": "draw",
+                "signatureType": "simple",
                 "role": "signer",
             },
+        },
+        "advancedOptions": map[string]interface{}{
+            "autoReminders": true,
+            "reminderDelay": 2,
+            "reminderFrequency": 3,
+            "expirationDays": 30,
+            "expirationWarning": 5,
         },
     }
     
@@ -338,23 +410,47 @@ ENVELOPE_RESPONSE=$(curl -s -X POST "https://api.formsign.com.br/api/envelopes/s
     \"fields\": [
       {
         \"type\": \"signature\",
+        \"name\": \"Assinatura do Cliente\",
         \"identifier\": \"assinatura_cliente\",
+        \"value\": \"\",
+        \"required\": true,
+        \"placeholder\": \"Assinatura do destinatário\",
+        \"x\": 246,
+        \"y\": 291,
+        \"w\": 269,
+        \"h\": 74,
+        \"pageNumber\": 1,
+        \"recipientRole\": \"signer\"
+      },
+      {
+        \"type\": \"date\",
+        \"name\": \"Data da Assinatura\",
+        \"identifier\": \"data_assinatura\",
+        \"value\": \"\",
         \"required\": true,
         \"x\": 70,
-        \"y\": 90,
+        \"y\": 80,
         \"w\": 20,
-        \"h\": 8,
-        \"pageNumber\": 1
+        \"h\": 6,
+        \"pageNumber\": 1,
+        \"recipientRole\": \"signer\"
       }
     ],
     \"recipients\": [
       {
         \"email\": \"$RECIPIENT_EMAIL\",
         \"name\": \"$RECIPIENT_NAME\",
-        \"signatureType\": \"draw\",
+        \"signatureType\": \"simple\",
         \"role\": \"signer\"
       }
-    ]
+    ],
+    \"advancedOptions\": {
+      \"autoReminders\": true,
+      \"reminderDelay\": 2,
+      \"reminderFrequency\": 3,
+      \"expirationDays\": 30,
+      \"expirationWarning\": 5
+    }
   }")
 
 ENVELOPE_ID=$(echo "$ENVELOPE_RESPONSE" | grep -o '"envelopeId":"[^"]*' | cut -d'"' -f4)

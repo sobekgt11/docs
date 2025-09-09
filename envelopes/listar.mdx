@@ -6,14 +6,13 @@ openapi: 'GET /api/envelopes'
 
 Este endpoint retorna uma lista paginada de envelopes do usuário, com opções de filtro por status, texto e data.
 
-<RequestExample>
+<RequestExample dropdown>
 
 ```bash cURL
 curl -X GET "https://api.formsign.com.br/api/envelopes?page=1&pageSize=10&status=sent&searchText=contrato" \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
-<CodeGroup>
 
 ```javascript JavaScript
 const response = await fetch('https://api.formsign.com.br/api/envelopes?page=1&pageSize=10&status=sent', {
@@ -52,7 +51,7 @@ for envelope in data['envelopes']:
     print(f"{envelope['envelopeId']}: {envelope['subject']} - {envelope['status']}")
 ```
 
-</CodeGroup>
+</RequestExample>
 
 ### Parâmetros (Query)
 

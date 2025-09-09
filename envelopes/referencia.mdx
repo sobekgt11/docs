@@ -1,16 +1,16 @@
 ---
 title: Envelopes — Referência
-description: API completa para gerenciar envelopes de assinatura digital.
+description: API para envio, consulta e gestão de envelopes de assinatura digital.
 icon: envelope
 ---
 
-A API de envelopes permite criar, enviar, gerenciar e acompanhar documentos para assinatura digital, oferecendo funcionalidades completas para integrações server-to-server.
+A API de envelopes permite enviar, gerenciar e acompanhar documentos para assinatura digital, oferecendo funcionalidades robustas para integrações server-to-server. Não há criação isolada de envelopes; o envio é imediato.
 
 ## Operações Disponíveis:
 
-### Criação e Envio
+### Envio
 - POST `/api/envelopes/send/base64` — enviar envelope com documento base64
-- POST `/api/envelopes/send/template` — enviar envelope baseado em template
+- POST `/api/envelopes/send/template` — enviar envelope baseado em template (com ajustes)
 
 ### Consulta e Listagem
 - GET `/api/envelopes` — listar envelopes com filtros e paginação
@@ -21,16 +21,14 @@ A API de envelopes permite criar, enviar, gerenciar e acompanhar documentos para
 - POST `/api/envelopes/resend` — reenviar envelope para destinatários
 - POST `/api/envelopes/void` — cancelar envelope (ação irreversível)
 
-## Características Principais:
-
-### Criação de Envelopes
+## Características Principais
 - **Upload direto**: Envie PDFs codificados em base64
-- **Templates**: Use templates pré-configurados com sobrescritas
+- **Templates**: Use templates pré-configurados com ajustes
 - **Validação automática**: Validação de PDF, campos e destinatários
 - **Limite de tamanho**: Máximo 10MB por documento
 - **Múltiplos destinatários**: Configure vários signatários e observadores
 - **Campos personalizáveis**: Assinatura, texto, data, checkbox, radio
-- **Envio automático**: Envelopes são enviados imediatamente após criação
+- **Envio imediato**: Sem criação isolada; o envio ocorre na mesma chamada
 
 ### Gestão e Acompanhamento
 - **Listagem paginada**: Com filtros por status, data e texto

@@ -1,12 +1,12 @@
 ---
 title: Enviar Envelope com Template
-description: Cria e envia um envelope baseado em um template existente.
+description: Envia um envelope baseado em um template existente, com ajustes opcionais.
 openapi: 'POST /api/envelopes/send/template'
 ---
 
-Este endpoint permite criar e enviar envelopes baseados em templates criados previamente, com possibilidade de sobrescrever dados específicos do template.
-<RequestExample>
-<CodeGroup dropdown>
+Este endpoint permite enviar envelopes baseados em templates criados previamente, com possibilidade de ajustar dados específicos do template. Não há criação isolada de envelopes; o envio é imediato.
+
+<RequestExample dropdown>
 
 ```bash cURL
 curl -X POST "https://api.formsign.com.br/api/envelopes/send/template" \
@@ -15,6 +15,35 @@ curl -X POST "https://api.formsign.com.br/api/envelopes/send/template" \
   -d '{
     "templateId": "tpl_abc123456789",
     "subject": "Contrato Personalizado",
+    "fields": [
+      {
+        "type": "signature",
+        "name": "Assinatura do Cliente",
+        "identifier": "assinatura_cliente",
+        "value": "",
+        "required": true,
+        "placeholder": "Assinatura do destinatário",
+        "x": 246,
+        "y": 291,
+        "w": 269,
+        "h": 74,
+        "pageNumber": 1,
+        "recipientRole": "signer"
+      },
+      {
+        "type": "date",
+        "name": "Data da Assinatura",
+        "identifier": "data_assinatura",
+        "value": "",
+        "required": true,
+        "x": 70,
+        "y": 80,
+        "w": 20,
+        "h": 6,
+        "pageNumber": 1,
+        "recipientRole": "signer"
+      }
+    ],
     "recipients": [
       {
         "email": "cliente@example.com",
@@ -36,6 +65,35 @@ const response = await fetch('https://api.formsign.com.br/api/envelopes/send/tem
   body: JSON.stringify({
     templateId: 'tpl_abc123456789',
     subject: 'Contrato Personalizado',
+    fields: [
+      {
+        type: 'signature',
+        name: 'Assinatura do Cliente',
+        identifier: 'assinatura_cliente',
+        value: '',
+        required: true,
+        placeholder: 'Assinatura do destinatário',
+        x: 246,
+        y: 291,
+        w: 269,
+        h: 74,
+        pageNumber: 1,
+        recipientRole: 'signer'
+      },
+      {
+        type: 'date',
+        name: 'Data da Assinatura',
+        identifier: 'data_assinatura',
+        value: '',
+        required: true,
+        x: 70,
+        y: 80,
+        w: 20,
+        h: 6,
+        pageNumber: 1,
+        recipientRole: 'signer'
+      }
+    ],
     recipients: [
       {
         email: 'cliente@example.com',
@@ -57,6 +115,35 @@ import requests
 payload = {
     "templateId": "tpl_abc123456789",
     "subject": "Contrato Personalizado",
+    "fields": [
+        {
+            "type": "signature",
+            "name": "Assinatura do Cliente",
+            "identifier": "assinatura_cliente",
+            "value": "",
+            "required": True,
+            "placeholder": "Assinatura do destinatário",
+            "x": 246,
+            "y": 291,
+            "w": 269,
+            "h": 74,
+            "pageNumber": 1,
+            "recipientRole": "signer"
+        },
+        {
+            "type": "date",
+            "name": "Data da Assinatura",
+            "identifier": "data_assinatura",
+            "value": "",
+            "required": True,
+            "x": 70,
+            "y": 80,
+            "w": 20,
+            "h": 6,
+            "pageNumber": 1,
+            "recipientRole": "signer"
+        }
+    ],
     "recipients": [
         {
             "email": "cliente@example.com",
@@ -77,9 +164,8 @@ result = response.json()
 print(f"Envelope ID: {result['envelopeId']}")
 ```
 
-</CodeGroup>
-
 </RequestExample>
+
 
 ### Parâmetros (Body)
 

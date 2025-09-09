@@ -1,5 +1,5 @@
 ---
-title: /api/token
+title: Autenticação
 description: Gere um token Bearer (JWT de curta duração) usando credenciais Basic no formato `clientId:clientSecret`.
 openapi: 'POST /api/token'
 ---
@@ -11,15 +11,13 @@ Use este endpoint para trocar suas credenciais de API (clientId e clientSecret) 
 - URL: `/api/token`
 - Header obrigatório: `Authorization: Basic <base64(clientId:clientSecret)>`
 
-<RequestExample>
+<RequestExample dropdown>
 
 ```bash cURL
 curl -X POST \
   -H "Authorization: Basic $(echo -n 'CLIENT_ID:CLIENT_SECRET' | base64)" \
   https://api.formsign.com.br/api/token
 ```
-
-<CodeGroup>
 
 ```go Go
 package main
@@ -78,7 +76,7 @@ public class Main {
 }
 ```
 
-</CodeGroup>
+</RequestExample>
 
 ### Campos
 
